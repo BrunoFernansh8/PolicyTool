@@ -1,18 +1,20 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import WelcomePage from './pages/WelcomePage';
 import LoginPage from './pages/LoginPage';
-import Dashboard from './pages/Dashboard';
+import ConcernsPage from './pages/ConcernsPage';
+import RiskPriorityPage from './pages/RiskPriorityPage';
 import RiskAssessment from './pages/RiskAssessment';
-import PolicyGenerator from './pages/PolicyGenerator';
 
 function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<LoginPage />} />
-        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/" element={<WelcomePage/>} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/concerns" element={<ConcernsPage />} />
+        <Route path="/risk-priority" element={<RiskPriorityPage />} />
         <Route path="/risk" element={<RiskAssessment />} />
-        <Route path="/policy" element={<PolicyGenerator />} />
       </Routes>
     </Router>
   );
