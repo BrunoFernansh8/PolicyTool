@@ -1,4 +1,5 @@
 const Risk = require('../models/Risk');
+const { processConcern } = require('../utils/Gpt');
 
 exports.getRisks = async (req, res) => {
   try {
@@ -9,7 +10,7 @@ exports.getRisks = async (req, res) => {
   }
 };
 
-exports.addRisk = async (req, res) => {
+eexports.addRisk = async (req, res) => {
   const { title, description } = req.body;
 
   try {
@@ -18,5 +19,23 @@ exports.addRisk = async (req, res) => {
     res.status(201).json(risk);
   } catch (err) {
     res.status(500).json({ message: 'Error adding risk.', error: err.message });
+  }
+};
+
+// Analyze a user-entered concern using GPT
+exports.analyzeConcern = async (req, res) => {
+  const { concern } = req.body;
+
+  if (!concern) {
+    return res.status(400).json({ message: 'Concern description is required.' });
+  }
+
+  try {
+    // Process the concern using GPT
+    const gptResult = await processConcern(concern);
+
+    res.status(200).json({ analyzedConcern: gptResult });
+  } catch (err) {
+    res.status(500).json({ message: 'Error analyzing concern.', error: err.message });
   }
 };

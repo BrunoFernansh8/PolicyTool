@@ -1,7 +1,8 @@
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
-const authRoutes = require('./routes/authenticateRoutes');
+const cors = require('cors');
+const authenticateRoutes = require('./routes/authenticateRoutes');
 const riskRoutes = require('./routes/riskRoutes');
 const policyRoutes = require('./routes/policyRoutes');
 
@@ -20,6 +21,9 @@ mongoose.connect('mongodb://localhost:27017/cloudRiskDB', {
 app.use('/api/auth', authenticateRoutes);
 app.use('/api/risk', riskRoutes);
 app.use('/api/policy', policyRoutes);
+
+app.use(cors());
+app.use(express.json());
 
 // Start Server
 const PORT = process.env.PORT || 5000;

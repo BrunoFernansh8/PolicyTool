@@ -9,6 +9,17 @@ const api = axios.create({
   },
 });
 
+export const analyzeConcern = async (concern) => {
+  try {
+    const response = await api.post('/risks/analyze', { concern });
+    return response.data;
+  } catch (error) {
+    console.error('Error analyzing concern:', error);
+    throw error.response?.data || { message: 'Unknown error occurred.' };
+  }
+};
+
+
 // Request interceptor to add Authorization header if token is available
 api.interceptors.request.use(
   (config) => {
