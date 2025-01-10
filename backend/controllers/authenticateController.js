@@ -1,43 +1,103 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const Company = require('..models/Company');
 
-exports.register = async (req, res) => {
-  const { username, password, companyName, role } = req.body;
+// Generate JWT Token
+const generateToken = (id) => {
+  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '1d' });
+};
+
+// Register SuperUser
+exports.registerSuperUser = async (req, res) => {
+  const { name, email, password, postcode, companyName } = req.body;
 
   try {
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const user = new User({ username, password: hashedPassword, companyName, role });
-    await user.save();
+    // Generate unique organisation password
+    const organisationPassword = require('crypto').randomBytes(16).toString('hex');
 
-    res.status(201).json({ message: 'User registered successfully.' });
-  } catch (err) {
-    res.status(500).json({ message: 'Error registering user.', error: err.message });
+    // Create company
+    const company = new Company({ name: companyName, uniquePassword: organisationPassword });
+    await company.save();
+
+    // Create SuperUser
+    const superuser = new User({
+      name,
+      email,
+      password,
+      postcode,
+      role: 'superuser',
+      company: company._id,
+    });
+    await superuser.save();
+
+    // Link company to SuperUser
+    company.superuser = superuser._id;
+    await company.save();
+
+    res.status(201).json({ message: 'SuperUser registered successfully', organisationPassword });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error registering SuperUser' });
   }
 };
 
-exports.login = async (req, res) => {
-  const { username, password } = req.body;
+// Register Normal User
+exports.registerUser = async (req, res) => {
+  const { name, email, password, postcode, organisationPassword } = req.body;
 
   try {
-    const user = await User.findOne({ username });
+    // Find company by organisation password
+    const company = await Company.findOne({ uniquePassword: organisationPassword });
+    if (!company) {
+      return res.status(400).json({ message: 'Invalid organisation password' });
+    }
+
+    // Create user
+    const user = new User({
+      name,
+      email,
+      password,
+      postcode,
+      role: 'user',
+      company: company._id,
+    });
+    await user.save();
+
+    // Add user to company
+    company.employees.push(user._id);
+    await company.save();
+
+    res.status(201).json({ message: 'User registered successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error registering user' });
+  }
+};
+
+// Login User
+exports.loginUser = async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    // Find user by email
+    const user = await User.findOne({ email });
     if (!user) {
-      return res.status(400).json({ message: 'Invalid username or password.' });
+      return res.status(400).json({ message: 'Invalid email or password' });
     }
 
-    const validPassword = await bcrypt.compare(password, user.password);
-    if (!validPassword) {
-      return res.status(400).json({ message: 'Invalid username or password.' });
+    // Validate password
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: 'Invalid email or password' });
     }
 
-    const token = jwt.sign(
-      { id: user._id, companyName: user.companyName, role: user.role },
-      process.env.JWT_SECRET,
-      { expiresIn: '1d' }
-    );
+    // Generate JWT
+    const token = generateToken(user._id);
 
-    res.status(200).json({ token });
-  } catch (err) {
-    res.status(500).json({ message: 'Error logging in.', error: err.message });
+    res.status(200).json({ token, role: user.role });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error logging in' });
   }
 };

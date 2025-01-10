@@ -1,13 +1,11 @@
 const express = require('express');
-const { getRisks, addRisk } = require('../controllers/riskController');
-const authenticate = require('../middlewares/authenticateMiddleware');
+const { getRisks, addRisk, analyzeConcern } = require('../controllers/riskController');
+const authenticateMiddleware = require('../middlewares/authenticateMiddleware');
 
 const router = express.Router();
 
-// Get all risks for the logged-in user
-router.get('/', authenticate, getRisks);
-
-// Add a new risk
-router.post('/', authenticate, addRisk);
+router.get('/', authenticateMiddleware, getRisks);
+router.post('/', authenticateMiddleware, addRisk);
+router.post('/analyze', authenticateMiddleware, analyzeConcern);
 
 module.exports = router;
