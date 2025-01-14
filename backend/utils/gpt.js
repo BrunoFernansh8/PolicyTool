@@ -1,13 +1,11 @@
-const { Configuration, OpenAIApi } = require('openai');
+const OpenAI = require('openai').default;
 
-const configuration = new Configuration({
-  apiKey: 'your-openai-api-key',
-});
-const openai = new OpenAIApi(configuration);
-
+const openai = new OpenAI({
+  apiKey:process.env.OPENAI_API_KEY,
+})
 exports.fetchGPTInsights = async (concern) => {
   try {
-    const response = await openai.createCompletion({
+    const response = await openai.chat.completions.create({
       model: 'text-davinci-003',
       prompt: `Provide a detailed analysis of the security concern: ${concern}.
       Please also provide real world examples from the web about this concern taking place in industry, with 
@@ -15,9 +13,15 @@ exports.fetchGPTInsights = async (concern) => {
       taking place in general, alongside the potnetial consequences.`,
       max_tokens: 500,
     });
-    return response.data.choices[0].text;
+    console.log(response.choices[0].text);
   } catch (error) {
-    console.error(error);
-    throw new Error('Error interacting with GPT API');
+    if (error instanceof OpenAI.APIError) {
+      console.error(error.status);
+      console.error(error.message);
+      console.error(error.code);
+      console.error(error.type);
+    } else {
+      console.log(error);
+    }
   }
 };

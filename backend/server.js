@@ -2,13 +2,15 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+
 const authenticateRoutes = require('./routes/authenticateRoutes');
 const riskRoutes = require('./routes/riskRoutes');
 const policyRoutes = require('./routes/policyRoutes');
 
 const app = express();
-app.use(express.json());
+const PORT = process.env.PORT || 8000;
 
+mongoose.set('strictQuery', false);
 // MongoDB Connection
 mongoose.connect('mongodb://localhost:27017/cloudRiskDB', {
   useNewUrlParser: true,
