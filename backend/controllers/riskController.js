@@ -1,5 +1,5 @@
 const Risk = require('../models/Risk');
-const { processConcern } = require('../utils/Gpt');
+const { processConcern } = require('../utils/gpt');
 
 // Fetch logged risks
 exports.getRisks = async (req, res) => {
@@ -36,6 +36,6 @@ exports.analyzeConcern = async (req, res) => {
     const gptResult = await processConcern(concern);
     res.status(200).json({ analyzedConcern: gptResult });
   } catch (err) {
-    res.status(500).json({ message: 'Error analyzing concern.', error: err.message });
+    res.status(500).json({ message: 'Error analysing concern.', error: err.message });
   }
 };
