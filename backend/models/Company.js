@@ -4,7 +4,7 @@ const companySchema = new mongoose.Schema({
   name: { type: String, required: true },
   superuser: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   employees: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
-  uniquePassword: { type: String, required: true }, // Generated password
+  uniquePassword: { type: String, required: true }, 
 });
 
 module.exports = mongoose.model('Company', companySchema);

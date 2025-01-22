@@ -3,6 +3,10 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 
+// Middleware
+app.use(cors());
+app.use(express.json());
+
 const authenticateRoutes = require('./routes/authenticateRoutes');
 const riskRoutes = require('./routes/riskRoutes');
 const policyRoutes = require('./routes/policyRoutes');
@@ -12,10 +16,7 @@ const PORT = process.env.PORT || 8000;
 
 mongoose.set('strictQuery', false);
 // MongoDB Connection
-mongoose.connect('mongodb://localhost:27017/cloudRiskDB', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
+mongoose.connect('mongodb://localhost:27017/cloudRiskDB')
 .then(() => {
   console.log('Connected to MongoDB');
   app.listen(PORT, () => {
@@ -25,10 +26,6 @@ mongoose.connect('mongodb://localhost:27017/cloudRiskDB', {
 .catch((err) => {
   console.error('Database connection error:', err);
 });
-
-// Middleware
-app.use(cors());
-app.use(express.json());
 
 // Routes
 app.use('/api/auth', authenticateRoutes);

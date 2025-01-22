@@ -7,7 +7,7 @@ const userSchema = new mongoose.Schema({
   password: { type: String, required: true },
   postcode: { type: String },
   role: { type: String, enum: ['superuser', 'user'], default: 'user' },
-  organisationPassword: { type: String }, // For employees during sign-up
+  organisationPassword: { type: String }, 
   company: { type: mongoose.Schema.Types.ObjectId, ref: 'Company' },
 });
 
