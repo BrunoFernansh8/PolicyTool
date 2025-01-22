@@ -5,8 +5,8 @@ const riskSchema = new mongoose.Schema({
   description: { type: String },
   likelihood: { type: String },
   consequence: { type: String },
-  priority: { type: Number }, // Dragging for priority listing
-  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  priority: { type: Number }, 
+  reportedBy: { type: String},
 });
 
 module.exports = mongoose.model('Risk', riskSchema);
