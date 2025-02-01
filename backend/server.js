@@ -3,9 +3,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 
-// Middleware
-app.use(cors());
-app.use(express.json());
+
 
 const authenticateRoutes = require('./routes/authenticateRoutes');
 const riskRoutes = require('./routes/riskRoutes');
@@ -26,6 +24,10 @@ mongoose.connect('mongodb://localhost:27017/cloudRiskDB')
 .catch((err) => {
   console.error('Database connection error:', err);
 });
+
+// Middleware
+app.use(express.json());
+app.use(cors());
 
 // Routes
 app.use('/api/auth', authenticateRoutes);

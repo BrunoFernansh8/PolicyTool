@@ -1,9 +1,9 @@
 const request = require('supertest');
-const app = require('../server'); // Import your Express app
+const app = require('../server'); 
 const mongoose = require('mongoose');
-const Risk = require('../models/Risk'); // Import the Risk model
+const Risk = require('../models/Risk'); 
 const { response } = require('express');
-const { analyzeRisk } = require('../utils/gpt');
+const { analyzeConcern } = require('../utils/gpt');
 
 // Define the test suite for the Risk API
 describe('Risk Routes', () => {
@@ -68,8 +68,8 @@ describe('Risk Routes', () => {
   });
 
   describe('POST /risk/analyze', () => {
-    it('should analyze a concern using GPT', async () => {
-      analyzeRisk.mockResolvedValue({
+    it('should analyze a concern using HuggingFaceAI', async () => {
+      analyzeConcern.mockResolvedValue({
         likelihood: 'High',
         consequence: 'Severe financial and reputational damage.',
         recommendation: 'Implement strict access controls and employee training.',
@@ -88,8 +88,8 @@ describe('Risk Routes', () => {
           recommendation: 'Implement strict access controls and employee training.',
         });
     
-        // Ensure the mocked analyzeRisk function was called
-        expect(analyzeRisk).toHaveBeenCalledWith(
+        // Ensure the mocked analyzeConcern function was called
+        expect(analyzeConcern).toHaveBeenCalledWith(
           'What happens if sensitive data is exposed to unauthorized personnel?'
         );
       });
@@ -104,7 +104,7 @@ describe('Risk Routes', () => {
     });
     it('should handle server errors gracefully', async () => {
       // Mock the analyzeRisk function to throw an error
-      analyzeRisk.mockRejectedValue(new Error('GPT API error'));
+      analyzeConcern.mockRejectedValue(new Error('GPT API error'));
   
       const response = await request(app)
         .post('/risks/analyze')

@@ -1,39 +1,39 @@
-const OpenAI = require('openai').default;
+const axios = require('axios');
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+const HUGGINGFACE_API_URL = 'https://api-inference.huggingface.co/models/tiiuae/falcon-7b-instruct';
+const HUGGINGFACE_API_KEY = process.env.HUGGINGFACE_API_KEY;
 
 const analyzeRisk = async (concern) => {
   try {
-    const response = await openai.chat.completions.create({
-      model: 'text-davinci-003',
-      prompt: `Provide a detailed analysis of the security concern: ${concern}.
-      Please also provide real-world examples from the web about this concern taking place in the industry, with 
-      a reference to the source. Please also provide the likelihood of this concern
-      taking place in general, alongside the potential consequences.`,
-      max_tokens: 500,
-    });
+    console.log('Analyzing risk using Hugging Face AI:', concern);
 
-    // Extract the generated text from the response
-    const analysis = response.choices[0].text;
+    const response = await axios.post(
+      HUGGINGFACE_API_URL,
+      { 
+        inputs: `Analyze the following security concern and provide a structured response with clear headings:\n
+        **Concern:** ${concern}
+        **Likelihood:** (Describe the likelihood of this risk occurring)
+        **Consequences:** (List 2-3 major consequences of this risk)
+        **Mitigation Strategies:** (Suggest 2-3 actionable steps to mitigate this risk)
+        \nPlease structure the response with bullet points.`
+      },
+      {
+        headers: { 
+          Authorization: `Bearer ${HUGGINGFACE_API_KEY}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
 
-    // Return the analysis for further use
-    return analysis;
-  } catch (error) {
-    // Handle OpenAI-specific errors
-    if (error instanceof OpenAI.APIError) {
-      console.error('OpenAI API Error:', {
-        status: error.status,
-        message: error.message,
-        code: error.code,
-        type: error.type,
-      });
+    if (response.data && response.data[0] && response.data[0].generated_text) {
+      return response.data[0].generated_text;
     } else {
-      console.error('Unexpected Error:', error);
+      return 'AI analysis failed: No valid response from Hugging Face.';
     }
-    throw new Error('Failed to analyze the concern using OpenAI.');
+  } catch (error) {
+    console.error('Error analyzing risk with Hugging Face:', error.response ? error.response.data : error.message);
+    return 'Analysis service is temporarily unavailable. Please try again later.';
   }
 };
 
-module.exports = {analyzeRisk};
+module.exports = { analyzeRisk };
