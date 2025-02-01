@@ -36,3 +36,4 @@ public/assets/
 # System files
 *.swp
 *.swo
+.env
