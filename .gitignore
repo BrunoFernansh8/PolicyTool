@@ -37,3 +37,4 @@ public/assets/
 *.swp
 *.swo
 .env
+backend/.env
