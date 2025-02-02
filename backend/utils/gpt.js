@@ -10,12 +10,17 @@ const analyzeRisk = async (concern) => {
     const response = await axios.post(
       HUGGINGFACE_API_URL,
       { 
-        inputs: `Analyze the following security concern and provide a structured response with clear headings:\n
+        inputs: `Analyze the following security concern and provide a structured response with clear headings:
         **Concern:** ${concern}
+        
         **Likelihood:** (Describe the likelihood of this risk occurring)
+        
         **Consequences:** (List 2-3 major consequences of this risk)
+        
         **Mitigation Strategies:** (Suggest 2-3 actionable steps to mitigate this risk)
-        \nPlease structure the response with bullet points.`
+        
+        Please structure the response with bullet points.`
+        
       },
       {
         headers: { 
