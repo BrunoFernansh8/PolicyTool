@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const app = express();
 
 // Middleware
 app.use(express.json());
@@ -12,7 +13,7 @@ const authenticateRoutes = require('./routes/authenticateRoutes');
 const riskRoutes = require('./routes/riskRoutes');
 const policyRoutes = require('./routes/policyRoutes');
 
-const app = express();
+
 const PORT = process.env.PORT || 8000;
 
 mongoose.set('strictQuery', false);
