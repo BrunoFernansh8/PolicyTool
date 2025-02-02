@@ -38,3 +38,4 @@ public/assets/
 *.swo
 .env
 backend/.env
+backend/.env.example
