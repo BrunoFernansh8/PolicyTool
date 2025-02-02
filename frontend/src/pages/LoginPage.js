@@ -1,45 +1,35 @@
-import React, { useState } from 'react';
-import axios from '../api/api';
+import React, { useState, useContext } from "react";
+import { AuthContext } from "../contexts/AuthContext";
+import { loginUser } from "../services/auth";
+import { useNavigate } from "react-router-dom";
 
-function LoginPage() {
-  const [isSignUp, setIsSignUp] = useState(false);
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+const LoginPage = () => {
+  const { login } = useContext(AuthContext);
+  const navigate = useNavigate();
+  const [credentials, setCredentials] = useState({ username: "", password: "" });
 
-  const handleAuth = async () => {
+  const handleChange = (e) => {
+    setCredentials({ ...credentials, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     try {
-      const endpoint = isSignUp ? '/api/auth/register' : '/api/auth/login';
-      const response = await axios.post(endpoint, { username, password });
-      alert(`Success: ${response.data.message}`);
+      const userData = await loginUser(credentials);
+      login(userData);
+      navigate(userData.role === "superuser" ? "/superuser" : "/user");
     } catch (error) {
-      console.error(error);
+      console.error("Login failed", error);
     }
   };
 
   return (
-    <div className="login-page">
-      <h1>{isSignUp ? 'Sign Up' : 'Log In'}</h1>
-      <input
-        type="text"
-        placeholder="Username"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-      />
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
-      <button onClick={handleAuth}>{isSignUp ? 'Sign Up' : 'Log In'}</button>
-      <p>
-        {isSignUp ? 'Already have an account?' : 'Don’t have an account?'}
-        <span onClick={() => setIsSignUp(!isSignUp)}>
-          {isSignUp ? ' Log In' : ' Sign Up'}
-        </span>
-      </p>
-    </div>
+    <form onSubmit={handleSubmit}>
+      <input type="text" name="username" onChange={handleChange} required />
+      <input type="password" name="password" onChange={handleChange} required />
+      <button type="submit">Login</button>
+    </form>
   );
-}
+};
 
 export default LoginPage;

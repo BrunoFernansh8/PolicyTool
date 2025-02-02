@@ -1,22 +1,20 @@
-import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import WelcomePage from './pages/WelcomePage';
-import LoginPage from './pages/LoginPage';
-import ConcernsPage from './pages/ConcernsPage';
-import RiskPriorityPage from './pages/RiskPriorityPage';
-import RiskAssessment from './pages/RiskAssessment';
+import React from "react";
+import { Routes, Route } from "react-router-dom";
+import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
+import SuperuserDashboard from "./pages/SuperuserDashboard";
+import UserDashboard from "./pages/UserDashboard";
+import HomePage from "./pages/HomePage";
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<WelcomePage/>} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/concerns" element={<ConcernsPage />} />
-        <Route path="/risk-priority" element={<RiskPriorityPage />} />
-        <Route path="/risk" element={<RiskAssessment />} />
-      </Routes>
-    </Router>
+    <Routes>
+      <Route path="/" element={<HomePage />} />
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/register" element={<RegisterPage />} />
+      <Route path="/superuser" element={<SuperuserDashboard />} />
+      <Route path="/user" element={<UserDashboard />} />
+    </Routes>
   );
 }
 
