@@ -22,3 +22,10 @@ exports.generatePolicy = async (req, res) => {
     res.status(500).json({ message: 'Error generating policy' });
   }
 };
+
+exports.createPolicy = (req, res) => {
+  const policyData = req.body;
+  console.log('Policy data received:', policyData);
+  res.status(201).send({ message: 'Policy requirements submitted successfully', data: policyData });
+};
+

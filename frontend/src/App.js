@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useContext } from "react";
 import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import PolicyRequirements from './components/Policy/PolicyRequirements.js';
+
 
 const API_URL = "http://localhost:8000";
 
@@ -135,6 +137,7 @@ const App = () => {
         <Routes>
           <Route path="/" element={<h1>Welcome to PolicyTool</h1>} />
           <Route path="/register" element={<Register />} />
+          <Route path="/policy-requirements" element={<PolicyRequirements />} />
           <Route path="/login" element={<Login />} />
           <Route path="/dashboard" element={<ProtectedRoute element={<Dashboard />} />} />
         </Routes>
