@@ -2,8 +2,7 @@ const request = require('supertest');
 const app = require('../server'); 
 const mongoose = require('mongoose');
 const Risk = require('../models/Risk'); 
-const { response } = require('express');
-const { analyzeConcern } = require('../utils/gpt');
+const { analyzeRisk } = require('../utils/gpt');
 
 // Define the test suite for the Risk API
 describe('Risk Routes', () => {
@@ -24,7 +23,8 @@ describe('Risk Routes', () => {
       await Risk.create({
         title: 'Sample Risk',
         description: 'This is a test risk.',
-        createdBy: userId,
+        reportedBy: userId,
+        organization: 'Test Organisation',
       });
 
       const res = await request(app)
@@ -45,7 +45,7 @@ describe('Risk Routes', () => {
         .set('Authorization', `Bearer mockTokenForUser:${userId}`) 
         .send({
           title: 'Unauthorized Access',
-          description: 'Potential unauthorised access to sensitive data.',
+          riskDescription: 'Potential unauthorised access to sensitive data.',
         });
 
       expect(res.statusCode).toEqual(201);
@@ -67,54 +67,81 @@ describe('Risk Routes', () => {
     });
   });
 
-  describe('POST /risk/analyze', () => {
-    it('should analyze a concern using HuggingFaceAI', async () => {
-      analyzeConcern.mockResolvedValue({
+  describe('POST /risks/analyze', () => {
+    it('should analyze a stored risk using AI', async () => {
+      // Mock AI analysis
+      analyzeRisk.mockResolvedValue({
+        research: 'Research on the concern in real life on real life cases',
         likelihood: 'High',
-        consequence: 'Severe financial and reputational damage.',
-        recommendation: 'Implement strict access controls and employee training.',
+        consequences: 'Severe financial and reputational damage.',
+        mitigationStrategies: {
+          userInformation: 'Encrypt sensitive data.',
+          system: 'Install intrusion detection systems.',
+          infrastructure: 'Implement redundancy measures',
+        },
+        assetImpact: {
+          userInformation: 'High risk of data exposure.',
+          infrastructure: 'Possible vulnerabilities.',
+          client: 'Loss of confidential data',
+          system: 'Loss of control on systems'
+        },
       });
   
-      const response = await request(app)
-        .post('/risk/analyze')
-        .send({
-          concern: 'What happens if sensitive data is exposed?',
-        });
-
-        expect(response.statusCode).toBe(200);
-        expect(response.body.analyzedConcern).toEqual({
-          likelihood: 'High',
-          consequence: 'Severe financial and reputational damage.',
-          recommendation: 'Implement strict access controls and employee training.',
-        });
-    
-        // Ensure the mocked analyzeConcern function was called
-        expect(analyzeConcern).toHaveBeenCalledWith(
-          'What happens if sensitive data is exposed to unauthorized personnel?'
-        );
+      // Create a sample risk in the database
+      const risk = await Risk.create({
+        title: 'Sensitive Data Breach',
+        description: 'Unauthorized access to sensitive data could occur.',
+        reportedBy: 'user123',
+        organization: 'Test Organisation',
       });
-
-    it('should return 400 if concern is missing', async () => {
+  
       const res = await request(app)
         .post('/risks/analyze')
-        .send({}); // Empty body
-
-      expect(response.statusCode).toBe(400);
-      expect(response.body.message).toBe('message', 'Concern description is required.');
-    });
-    it('should handle server errors gracefully', async () => {
-      // Mock the analyzeRisk function to throw an error
-      analyzeConcern.mockRejectedValue(new Error('GPT API error'));
+        .send({ id: risk.id });
   
-      const response = await request(app)
+      expect(res.statusCode).toEqual(200);
+      expect(res.body.analyzedRisk).toHaveProperty('title', 'Sensitive Data Breach');
+      expect(res.body.analyzedRisk).toHaveProperty('research', 'Research on real-life cases of similar risks.');
+      expect(res.body.analyzedRisk).toHaveProperty('likelihood', 'High');
+      expect(res.body.analyzedRisk).toHaveProperty('consequences', 'Severe financial and reputational damage.');
+      expect(res.body.analyzedRisk.assetImpact).toEqual({
+        userInformation: 'High risk of data exposure.',
+        client: 'Loss of client trust.',
+        system: 'System disruptions.',
+        infrastructure: 'Possible infrastructure downtime.',
+      });
+    });
+  
+    it('should return 400 if no title is provided', async () => {
+      const res = await request(app).post('/risks/analyze').send({});
+      expect(res.statusCode).toEqual(400);
+      expect(res.body.message).toEqual('Risk title is required for analysis.');
+    });
+  
+    it('should return 404 if the risk is not found', async () => {
+      const res = await request(app)
         .post('/risks/analyze')
-        .send({
-          concern: 'What happens if sensitive data is exposed to unauthorized personnel?',
-        });
+        .send({ title: 'Nonexistent Risk' });
   
-      expect(response.statusCode).toBe(500);
-      expect(response.body.message).toBe('Error analyzing concern.');
+      expect(res.statusCode).toEqual(404);
+      expect(res.body.message).toEqual('Risk not found.');
     });
-    
+  
+    it('should handle server errors gracefully', async () => {
+      analyzeRisk.mockRejectedValue(new Error('AI Analysis Error'));
+  
+      const risk = await Risk.create({
+        title: 'System Vulnerability',
+        description: 'System may be vulnerable to attack.',
+        reportedBy: 'admin',
+        organization: 'Sample Org',
+      });
+
+      const res = await request(app).post('/risks/analyze').send({ id: risk._id });
+
+      expect(res.statusCode).toEqual(500);
+      expect(res.body.message).toEqual('Error analyzing stored risk.');
+    });
   });
+  
 });

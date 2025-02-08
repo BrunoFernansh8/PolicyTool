@@ -6,9 +6,8 @@ const { analyzeRisk } = require('../utils/gpt');
  */
 const getRisks = async (req, res) => {
   try {
-    // Assuming the organization is identified via req.user.organizationId
     const organizationId = req.user.organizationId;
-    
+
     // Fetch risks related to the organization
     const risks = await Risk.find({ organization: organizationId });
     res.status(200).json(risks);
@@ -23,11 +22,11 @@ const getRisks = async (req, res) => {
  */
 const addRisk = async (req, res) => {
   try {
-    const { title, description, reportedBy } = req.body;
+    const { title, description, reportedBy, organization } = req.body;
 
     // Validate required fields
-    if (!title || !description || !reportedBy) {
-      return res.status(400).json({ message: 'Title, description, and reporter are required.' });
+    if (!title || !description || !reportedBy || !organization) {
+      return res.status(400).json({ message: 'Title, description, reportedBy and organisation name are required.' });
     }
 
     // Create and save the new risk
@@ -35,7 +34,7 @@ const addRisk = async (req, res) => {
       title,
       description,
       reportedBy,
-      organization: req.user.organizationId // Link to user's organization
+      organization,
     });
 
     await newRisk.save();
@@ -47,35 +46,71 @@ const addRisk = async (req, res) => {
 };
 
 /**
- * Analyze a security concern using Hugging Face's NLP model.
+ * Analyze a stored risk by its ID.
  */
-const analyzeConcern = async (req, res) => {
+const analyzeStoredRiskById = async (req, res) => {
   try {
-    const { concern } = req.body;
+    const { id } = req.body;
 
-    // Validate input
-    if (!concern) {
-      return res.status(400).json({ message: 'Concern description is required.' });
+    if (!id) {
+      return res.status(400).json({ message: 'Risk ID is required for analysis.' });
     }
 
-    // Analyze the concern
-    const analysis = await analyzeRisk(concern);
+    const risk = await Risk.findById(id);
 
-    // Log the analysis result
+    if (!risk) {
+      return res.status(404).json({ message: 'Risk not found.' });
+    }
+
+    console.log('Found Risk:', risk);
+
+    const analysis = await analyzeRisk(risk.title, risk.description);
+
     console.log('Analysis Result:', analysis);
 
-    res.status(200).json({ analyzedConcern: analysis });
-  } catch (error) {
-    console.error('Error analyzing concern:', error);
-    res.status(500).json({
-      message: 'Error analyzing concern.',
-      error: error.message || 'Internal Server Error'
+    // Update the database record with the analysis
+    risk.research = analysis.research;
+    risk.likelihood = analysis.likelihood;
+    risk.consequences = analysis.consequences;
+    risk.mitigationStrategies = analysis.mitigationStrategies;
+    risk.assetImpact = analysis.assetImpact;
+
+    await risk.save();
+
+    console.log('Updated Risk:', risk);
+
+    res.status(200).json({
+      message: 'Risk analyzed successfully!',
+      analyzedRisk: risk,
     });
+  } catch (error) {
+    console.error('Error analyzing stored risk:', error.message || error);
+    res.status(500).json({ message: 'Error analyzing stored risk.' });
+    
+  }
+};
+const deleteRisk = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Check if the risk exists
+    const risk = await Risk.findById(id);
+    if (!risk) {
+      return res.status(404).json({ message: 'Risk not found.' });
+    }
+
+    // Delete the risk
+    await Risk.findByIdAndDelete(id);
+    res.status(200).json({ message: 'Risk deleted successfully.' });
+  } catch (error) {
+    console.error('Error deleting risk:', error);
+    res.status(500).json({ message: 'Failed to delete risk.' });
   }
 };
 
 module.exports = {
   getRisks,
   addRisk,
-  analyzeConcern
+  analyzeStoredRiskById,
+  deleteRisk,
 };
