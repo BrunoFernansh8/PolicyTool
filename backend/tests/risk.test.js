@@ -71,19 +71,14 @@ describe('Risk Routes', () => {
     it('should analyze a stored risk using AI', async () => {
       // Mock AI analysis
       analyzeRisk.mockResolvedValue({
-        research: 'Research on the concern in real life on real life cases',
+        backgroundResearch: 'Research on the concern in real life on real life cases',
         likelihood: 'High',
         consequences: 'Severe financial and reputational damage.',
         mitigationStrategies: {
           userInformation: 'Encrypt sensitive data.',
+          client: 'Ensure emails and reports are sent our promptly, and inform clients as soon as possible',
           system: 'Install intrusion detection systems.',
           infrastructure: 'Implement redundancy measures',
-        },
-        assetImpact: {
-          userInformation: 'High risk of data exposure.',
-          infrastructure: 'Possible vulnerabilities.',
-          client: 'Loss of confidential data',
-          system: 'Loss of control on systems'
         },
       });
   
@@ -97,18 +92,29 @@ describe('Risk Routes', () => {
   
       const res = await request(app)
         .post('/risks/analyze')
-        .send({ id: risk.id });
+        .send({ id: risk._id });
   
       expect(res.statusCode).toEqual(200);
       expect(res.body.analyzedRisk).toHaveProperty('title', 'Sensitive Data Breach');
-      expect(res.body.analyzedRisk).toHaveProperty('research', 'Research on real-life cases of similar risks.');
+      expect(res.body.analyzedRisk).toHaveProperty('backgroundResearch', 'Research on real-life cases of similar risks.');
       expect(res.body.analyzedRisk).toHaveProperty('likelihood', 'High');
       expect(res.body.analyzedRisk).toHaveProperty('consequences', 'Severe financial and reputational damage.');
-      expect(res.body.analyzedRisk.assetImpact).toEqual({
+      expect(res.body.analyzedRisk.mitigationStrategies).toMatchObject({
         userInformation: 'High risk of data exposure.',
         client: 'Loss of client trust.',
         system: 'System disruptions.',
         infrastructure: 'Possible infrastructure downtime.',
+      });
+      // Validate database updates
+      const updatedRisk = await Risk.findById(risk._id);
+      expect(updatedRisk.backgroundResearch).toEqual('Research on real-life cases of similar risks.');
+      expect(updatedRisk.likelihood).toEqual('High');
+      expect(updatedRisk.consequences).toEqual('Severe financial and reputational damage.');
+      expect(updatedRisk.mitigationStrategies).toEqual({
+        userInformation: 'Encrypt sensitive data.',
+        client: 'Notify clients promptly in case of issues.',
+        system: 'Install intrusion detection systems.',
+        infrastructure: 'Implement redundancy measures.',
       });
     });
   

@@ -1,20 +1,20 @@
 const axios = require("axios");
 
-const HUGGINGFACE_API_URL = "https://api-inference.huggingface.co/models/tiiuae/falcon-7b-instruct";
-const HUGGINGFACE_API_KEY = process.env.HUGGINGFACE_API_KEY;
+const OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
 const analyzeRisk = async (title, riskDescription) => {
   try {
-    console.log("Analyzing risk with Hugging Face AI:", title, riskDescription);
+    console.log("Analyzing risk with OpenAI:", title, riskDescription);
 
     const prompt = `
-    ### Analyze the following security concern:
+     ### Analyze the following security concern:
 
     **Title:** ${title}
     **Description:** ${riskDescription}
 
     ### Background Research:
-    Provide a brief analysis of the risk and real-life examples.
+    Provide an extensive analysis of the risk and real-life examples.
 
     ### Likelihood:
     Estimate how likely this risk is to occur.
@@ -22,64 +22,76 @@ const analyzeRisk = async (title, riskDescription) => {
     ### Consequences:
     List 2-3 major consequences of this risk for:
     - Financial
+    - Asset
     - Client
     - System
     - Infrastructure
 
     ### Mitigation Strategies:
-    Suggest actionable steps for:
-    - User Information
-    - Client Relationships
-    - Internal Systems
-    - Infrastructure Availability
-
-    ### Asset Impacts:
-    - **User Information Impact:** 
-    - **Client Impact:** 
-    - **System Impact:** 
-    - **Infrastructure Impact:** 
+    Suggest actionable steps to mitigate risks for the consequences of:
+    - Financial risks
+    - Asset Risks
+    - Client Risks
+    - System Risks
+    - Infrastructure Risks
     `;
 
     const response = await axios.post(
-      HUGGINGFACE_API_URL,
-      { inputs: prompt },
+      OPENAI_API_URL,
+      {
+        model: "gpt-4",
+        messages: [
+          { role: "system", content: "You are a cybersecurity expert." },
+          { role: "user", content: prompt },
+        ],
+        temperature: 0.7,
+        max_tokens: 1000,
+      },
       {
         headers: {
-          Authorization: `Bearer ${HUGGINGFACE_API_KEY}`,
+          Authorization: `Bearer ${OPENAI_API_KEY}`,
           "Content-Type": "application/json",
         },
       }
     );
 
-    const generatedText = response.data[0]?.generated_text || "";
+    const generatedText = response.data.choices[0]?.message?.content || "";
+    console.log("Generated Text:", generatedText);
 
-    console.log("Raw AI Response:", generatedText);
-
-    // Parsing the AI response using regex
     const parsedResponse = {
-      research: generatedText.match(/### Background Research:\s*(.*?)(?=###|$)/s)?.[1]?.trim() || "No research provided.",
-      likelihood: generatedText.match(/### Likelihood:\s*(.*?)(?=###|$)/s)?.[1]?.trim() || "Unknown",
-      consequences: generatedText.match(/### Consequences:\s*(.*?)(?=###|$)/s)?.[1]?.trim() || "Not specified.",
-      mitigationStrategies: {
-        userInformation: generatedText.match(/User Information\s*:\s*(.*?)(?=\n|$)/)?.[1]?.trim() || "No strategy specified.",
-        client: generatedText.match(/Client Relationships\s*:\s*(.*?)(?=\n|$)/)?.[1]?.trim() || "No strategy specified.",
-        system: generatedText.match(/Internal Systems\s*:\s*(.*?)(?=\n|$)/)?.[1]?.trim() || "No strategy specified.",
-        infrastructure: generatedText.match(/Infrastructure Availability\s*:\s*(.*?)(?=\n|$)/)?.[1]?.trim() || "No strategy specified.",
-      },
-      assetImpact: {
-        userInformation: generatedText.match(/User Information Impact\s*:\s*(.*?)(?=\n|$)/)?.[1]?.trim() || "No impact specified.",
-        client: generatedText.match(/Client Impact\s*:\s*(.*?)(?=\n|$)/)?.[1]?.trim() || "No impact specified.",
-        system: generatedText.match(/System Impact\s*:\s*(.*?)(?=\n|$)/)?.[1]?.trim() || "No impact specified.",
-        infrastructure: generatedText.match(/Infrastructure Impact\s*:\s*(.*?)(?=\n|$)/)?.[1]?.trim() || "No impact specified.",
-      },
+      backgroundResearch: extractSection("Background Research", generatedText),
+      likelihood: extractSection("Likelihood", generatedText),
+      consequences: extractSection("Consequences", generatedText),
+      mitigationStrategies: extractMitigationStrategies(generatedText),
     };
+
 
     console.log("Parsed AI Response:", parsedResponse);
     return parsedResponse;
   } catch (error) {
-    console.error("Error analyzing risk with AI:", error.message || error);
-    throw new Error("Failed to analyze the risk using AI.");
+    console.error("Error analyzing risk with OpenAI:", error.message || error);
+    throw new Error("Failed to analyze the risk using OpenAI.");
   }
 };
+
+/**
+ * Utility function to extract a section from the AI response.
+ */
+const extractSection = (section, text) => {
+  const regex = new RegExp(`###\\s*${section}:\\s*(.*?)\\n(###|$)`, "s");
+  const match = text.match(regex);
+  return match?.[1]?.trim() || "Not provided.";
+};
+const extractMitigationStrategies = (text) => {
+  const regex = /###\s*Mitigation Strategies:\s*(.*?)(?=###|$)/s;
+  const match = text.match(regex);
+  if (match && match[1]) {
+    return match[1].trim();
+  } else {
+    return "Not provided.";
+  }
+};
+
+
 
 module.exports = { analyzeRisk };

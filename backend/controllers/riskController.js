@@ -68,25 +68,33 @@ const analyzeStoredRiskById = async (req, res) => {
 
     console.log('Analysis Result:', analysis);
 
-    // Update the database record with the analysis
-    risk.research = analysis.research;
-    risk.likelihood = analysis.likelihood;
-    risk.consequences = analysis.consequences;
-    risk.mitigationStrategies = analysis.mitigationStrategies;
-    risk.assetImpact = analysis.assetImpact;
+    // Update the risk fields with the generated analysis
+    risk.backgroundResearch = analysis.backgroundResearch || "No research available.";
+    risk.likelihood = analysis.likelihood || "Unknown";
+    risk.consequences = analysis.consequences || "Not specified.";
+    risk.mitigationStrategies = analysis.mitigationStrategies || "Not specified.";
 
-    await risk.save();
+    console.log("Updating Risk Fields:", {
+      backgroundResearch: analysis.backgroundResearch,
+      likelihood: analysis.likelihood,
+      consequences: analysis.consequences,
+      mitigationStrategies: analysis.mitigationStrategies,
+    });
+    
+    // Save the updated risk back to the database
+    const updatedRisk = await risk.save();
 
-    console.log('Updated Risk:', risk);
+    console.log("Updated Risk:", updatedRisk);
 
     res.status(200).json({
-      message: 'Risk analyzed successfully!',
-      analyzedRisk: risk,
+      message: "Risk analyzed successfully!",
+      analyzedRisk: updatedRisk,
     });
+
+    
   } catch (error) {
     console.error('Error analyzing stored risk:', error.message || error);
     res.status(500).json({ message: 'Error analyzing stored risk.' });
-    
   }
 };
 const deleteRisk = async (req, res) => {
