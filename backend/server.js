@@ -29,9 +29,7 @@ mongoose.connect('mongodb://localhost:27017/cloudRiskDB')
   console.error('Database connection error:', err);
 });
 
-
-
 // Routes
 app.use('/api/auth', authenticateRoutes);
 app.use('/api/policy', policyRoutes);
-app.use('/api/risk', riskRoutes);
+app.use('/api', riskRoutes);

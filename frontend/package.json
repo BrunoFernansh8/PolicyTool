@@ -1,0 +1,45 @@
+{
+  "name": "frontend",
+  "version": "1.0.0",
+  "description": "Frontend application for PolicyTool",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "react-scripts start",
+    "dev": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "lint": "eslint . --ext .js,.jsx",
+    "format": "prettier --write .",
+    "serve": "npx serve -s build"
+  },
+  "keywords": [],
+  "author": "Your Name",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.7.9",
+    "react": "^18.2.0",
+    "react-beautiful-dnd": "^13.1.1",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^7.1.1",
+    "react-scripts": "^5.0.1"
+  },
+  "devDependencies": {
+    "eslint": "^8.53.0",
+    "prettier": "^3.1.0",
+    "serve": "^14.2.0"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 2 chrome versions",
+      "last 2 firefox versions",
+      "last 2 safari versions"
+    ]
+  },
+  "proxy": "http://localhost:8000"
+}
