@@ -7,7 +7,7 @@ describe('Policy Routes', () => {
   let risk1, risk2;
 
   beforeAll(async () => {
-    const url = `mongodb://localhost:27017/cloudRiskDB`;
+    const url = process.env.MONGO_URI;
     await mongoose.connect(url);
 
     // Create sample risks in the database

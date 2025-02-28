@@ -92,44 +92,71 @@ const extractMitigationStrategies = (text) => {
   }
 };
 
-// Create policy content using OpenAI
 const generatePolicyContent = async (risks, organization) => {
-  const OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
-  const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+  try {
+    const policyPrompt = `
+    You are a **cybersecurity policy expert**. Your task is to generate a **FULLY DETAILED Cloud Security Policy** for **${organization}**.
+    
+    ### **Policy Document Format**
+    
+    **1. Policy Statement**  
+    Clearly outline the organization's commitment to cloud security in 3-5 sentences.
 
-  const prompt = `
-    Generate a comprehensive cybersecurity policy for the organization: ${organization}.
+    **2. Purpose of Policy**  
+    Explain in **detailed paragraphs** why this policy is necessary and how it protects the organization.
 
-    Use the following risks and their respective details to guide the policy:
+    **3. Responsibility and Accountability**  
+    List **explicit roles** responsible for enforcing this policy:
+    - **IT Administrators**: Implement and manage cloud security controls.
+    - **Security Teams**: Conduct security assessments and respond to incidents.
+    - **Employees**: Follow security policies and report security concerns.
 
+    **4. General Requirements for Cloud Security**  
+    Provide a **detailed** explanation of security best practices:
+    - **Access Control**: Role-Based Access Control (RBAC), Multi-Factor Authentication (MFA).  
+    - **Data Protection**: Encrypt data at rest and in transit, regular backups.  
+    - **Secure Network Configurations**: VPNs, Firewalls, Intrusion Detection Systems.  
+    - **Compliance Standards**: ISO 27001, NIST, CSA CCM compliance.
+
+    **5. Identified Cybersecurity Risks and Mitigation Strategies**  
+     **This section MUST contain ALL the identified risks with complete details.** Do NOT summarize or remove any details. Each risk must have:  
+      - **Background Research**
+      - **Likelihood**
+      - **Consequences**
+      - **Mitigation Strategies**
+    
     ${risks.map((risk, index) => `
-      ${index + 1}. Risk Title: ${risk.title}
-      Background Research: ${risk.backgroundResearch || "No research available."} \n
-      Likelihood: ${risk.likelihood || "Unknown"} \n
-      Consequences: ${risk.consequences || "Not specified."} \n
-      Mitigation Strategies: ${risk.mitigationStrategies || "No strategies provided."} \n
+    ### **Risk ${index + 1}: ${risk.title}**  
+    - **Background Research:** ${risk.backgroundResearch}  
+    - **Likelihood:** ${risk.likelihood}  
+    - **Consequences:** ${risk.consequences}  
+    - **Mitigation Strategies:** ${risk.mitigationStrategies}
     `).join("\n")}
 
-    The policy must include the following sections:
-    1. **Introduction**: A general statement of purpose regarding cybersecurity and the importance of risk mitigation.
-    2. **Risk Details and Analysis**: Summarize each risk, including its likelihood, consequences, and related background research.
-    3. **Mitigation Strategies**: For each risk, outline actionable and specific mitigation steps. Include guidance on user information security, client relationships, system reliability, and infrastructure protection.
-    4. **Policy Guidelines**: Establish organizational practices and principles for addressing cybersecurity risks.
+    **6. Summary**  
+    Summarize the document professionally.  
+    - Reiterate that adherence to this policy is **mandatory**.
+    - State that regular reviews will be conducted.  
+    - Mention that non-compliance may result in **disciplinary action**.
 
-    Ensure the policy is written in a formal and professional tone, and structured for easy readability with headings and bullet points.
-  `;
+    **Important Instructions for AI:**  
+    - **DO NOT SUMMARIZE RISKS**.  
+    - **Ensure ALL SECTIONS ARE INCLUDED**.  
+    - **Use FORMATTED HEADINGS for each section**.  
+    - **Ensure proper paragraph spacing & structure**.  
+    - **Keep text professional & formal.**  
+    `;
 
-  try {
     const response = await axios.post(
       OPENAI_API_URL,
       {
-        model: "gpt-4",
+        model: "gpt-4",  // Using GPT-4 Turbo for efficiency
         messages: [
-          { role: "system", content: "You are a cybersecurity policy expert." },
-          { role: "user", content: prompt },
+          { role: "system", content: "You are an expert cybersecurity policy writer. Write a fully structured and detailed policy document." },
+          { role: "user", content: policyPrompt },
         ],
-        temperature: 0.7,
-        max_tokens: 2000,
+        temperature: 0, // Ensures strict adherence to structure
+        max_tokens: 6000, // Increased to prevent truncation
       },
       {
         headers: {
@@ -139,7 +166,21 @@ const generatePolicyContent = async (risks, organization) => {
       }
     );
 
-    return response.data.choices[0]?.message?.content || "No policy content generated.";
+    // Ensure full output
+    const policyText = response.data.choices[0]?.message?.content || "No policy content generated.";
+
+    // Structuring Output for Readability
+    const sections = policyText.split(/\n(?=\#\#)/).map((section) => {
+      const parts = section.split("**");
+      if (parts.length < 3) return null;
+      
+      return {
+        title: parts[1].trim(),
+        content: parts.slice(2).join("").trim(),
+      };
+    }).filter(Boolean);
+
+    return sections;
   } catch (error) {
     console.error("Error generating policy content:", error.message || error);
     throw new Error("Failed to generate policy content.");

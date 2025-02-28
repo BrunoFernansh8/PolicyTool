@@ -1,0 +1,99 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Anton&display=swap');
+
+body {
+  background-image: url("/assets/CloudPic.jpg");
+  background-repeat: no-repeat;
+  background-size: 110%;
+  font-family: 'Anton', sans-serif;
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+#title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 0.5vw;
+  margin-bottom: 1vw;
+} #title * {
+  margin: 0;
+} #title h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 3vw;
+} #title h2 {
+  font-size: 2vw;
+  font-weight: 100;
+}
+
+#robot-image {
+  position: absolute;
+  right: 30vw;
+  top: 2.4vw;
+  height: 10vw;
+  width: 8vw;
+}
+
+#body-section {
+  display: flex;
+  padding: 0 3vw;
+}
+
+#left-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  width: 50%;
+  min-height: auto;
+
+} #left-section h3 {
+  text-decoration: underline;
+  font-weight: 100;
+  font-size: 2vw;
+  margin: 0;
+
+} #left-section ol {
+  position:  relative;
+  right: 25px;
+  font-size: 1.2vw;
+  
+} #left-section a {
+  font-size: 0.7vw;
+  position: relative;
+  bottom: 0.7vw;
+}
+
+
+#postman-button {
+  background-color: #FF7D00;
+  border-radius: 50px;
+  border-color: black;
+  border-width: 7px;
+  padding: 0.5vw 4vw;
+  font-size: 1.75vw;
+  font-family: 'Anton', sans-serif;
+} 
+
+#right-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  width: 50%;
+  min-height: auto;
+} #right-section p {
+  font-size: 1.5vw;
+  text-align: center;
+} #right-section iframe {
+  border: none;
+  position: relative;
+  bottom: 10px;
+  width: 25vw;
+  height: 15vw;
+}
+
