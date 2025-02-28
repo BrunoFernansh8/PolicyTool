@@ -6,7 +6,7 @@ const User = require('../models/User');
 describe('Authentication Routes', () => {
   beforeAll(async () => {
     // Connect to the test database
-    const url = `mongodb://localhost:27017/cloudRiskDB`; 
+    const url = process.env.MONGO_URI; 
     await mongoose.connect(url);
   });
 

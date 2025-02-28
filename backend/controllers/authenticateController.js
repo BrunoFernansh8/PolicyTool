@@ -38,7 +38,7 @@ exports.registerSuperUser = async (req, res) => {
     res.status(201).json({ message: 'SuperUser registered successfully', organisationPassword });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Error registering SuperUser' });
+    res.status(500).json({ message: 'Error registering SuperUser. Credentials Invalid or Duplicate. View the database for more information.' });
   }
 };
 

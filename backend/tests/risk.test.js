@@ -8,33 +8,13 @@ const { analyzeRisk } = require('../utils/gpt');
 describe('Risk Routes', () => {
   beforeAll(async () => {
     // Connect to the test database
-    const url = `mongodb://localhost:27017/cloudRiskDB`; 
+    const url = process.env.MONGO_URI; 
     await mongoose.connect(url);
   });
 
   afterAll(async () => {
     await Risk.deleteMany({}); // Clean up the database
     await mongoose.connection.close(); // Close the connection
-  });
-
-  describe('GET /risks', () => {
-    it('should fetch all risks created by the user', async () => {
-      const userId = new mongoose.Types.ObjectId();
-      await Risk.create({
-        title: 'Sample Risk',
-        description: 'This is a test risk.',
-        reportedBy: userId,
-        organization: 'Test Organisation',
-      });
-
-      const res = await request(app)
-        .get('/risks')
-        .set('Authorization', `Bearer mockTokenForUser:${userId}`); // Simulate authentication
-
-      expect(res.statusCode).toEqual(200);
-      expect(res.body.length).toBeGreaterThan(0);
-      expect(res.body[0]).toHaveProperty('title', 'Sample Risk');
-    });
   });
 
   describe('POST /risks', () => {
@@ -149,5 +129,33 @@ describe('Risk Routes', () => {
       expect(res.body.message).toEqual('Error analyzing stored risk.');
     });
   });
+
+  describe('GET /risks', () => {
+    it('should fetch all risks created by the user', async () => {
+        const userId = new mongoose.Types.ObjectId();
+        await Risk.create({
+            title: 'Sample Risk',
+            organization: 'Test Organisation'
+        });
+
+        const res = await request(app)
+            .get('/risks')
+            .set('Authorization', `Bearer mockTokenForUser:${userId}`); // Simulate authentication
+
+        expect(res.statusCode).toEqual(200);
+        expect(res.body.length).toBeGreaterThan(0);
+        
+        // Check only required fields
+        expect(res.body[0]).toHaveProperty('title', 'Sample Risk');
+        expect(res.body[0]).toHaveProperty('organization', 'Test Organisation');
+        
+        // Ensure _id, createdAt & updatedAt are NOT in response
+        expect(res.body[0]).not.toHaveProperty('_id');
+        expect(res.body[0]).not.toHaveProperty('createdAt');
+        expect(res.body[0]).not.toHaveProperty('updatedAt');
+    });
+});
+
+
   
 });
