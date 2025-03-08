@@ -150,13 +150,13 @@ const generatePolicyContent = async (risks, organization) => {
     const response = await axios.post(
       OPENAI_API_URL,
       {
-        model: "gpt-4",  // Using GPT-4 Turbo for efficiency
+        model: "gpt-4",  
         messages: [
           { role: "system", content: "You are an expert cybersecurity policy writer. Write a fully structured and detailed policy document." },
           { role: "user", content: policyPrompt },
         ],
         temperature: 0, // Ensures strict adherence to structure
-        max_tokens: 6000, // Increased to prevent truncation
+        max_tokens: 6000, 
       },
       {
         headers: {
@@ -165,8 +165,6 @@ const generatePolicyContent = async (risks, organization) => {
         },
       }
     );
-
-    // Ensure full output
     const policyText = response.data.choices[0]?.message?.content || "No policy content generated.";
 
     // Structuring Output for Readability

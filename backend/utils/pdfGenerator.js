@@ -30,16 +30,13 @@ exports.generatePolicyPDF = async (policyData, organization) => {
           return;
         }
 
-        // Section Title - Bold & Underlined
         doc.font('Helvetica-Bold').fontSize(16).text(`${index + 1}. ${section.title}`, { underline: true });
         doc.moveDown(0.5);
 
-        // Content Formatting
         doc.font('Helvetica').fontSize(12).text(section.content, { align: 'justify' });
         doc.moveDown(1);
       });
 
-      // Finalize the PDF
       doc.end();
 
       writeStream.on('finish', () => {
