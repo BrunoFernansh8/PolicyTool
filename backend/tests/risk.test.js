@@ -13,7 +13,7 @@ describe('Risk Routes', () => {
   });
 
   afterAll(async () => {
-    await Risk.deleteMany({}); // Clean up the database
+    await Risk.deleteMany({}); 
     await mongoose.connection.close(); // Close the connection
   });
 
@@ -42,7 +42,7 @@ describe('Risk Routes', () => {
           title: 'Incomplete Risk',
         });
 
-      expect(res.statusCode).toEqual(500); // Based on your controller, missing fields will throw a 500
+      expect(res.statusCode).toEqual(500); 
       expect(res.body).toHaveProperty('message', 'Error adding risk.');
     });
   });
@@ -140,7 +140,7 @@ describe('Risk Routes', () => {
 
         const res = await request(app)
             .get('/risks')
-            .set('Authorization', `Bearer mockTokenForUser:${userId}`); // Simulate authentication
+            .set('Authorization', `Bearer mockTokenForUser:${userId}`); 
 
         expect(res.statusCode).toEqual(200);
         expect(res.body.length).toBeGreaterThan(0);
