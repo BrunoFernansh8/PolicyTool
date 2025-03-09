@@ -131,9 +131,11 @@ GENERATE YOUR API KEY
 
 
 #   5. Create your own private .env file in the 'backend' directory:
-    - cd your-repo
-    - cd backend
-    - touch .env (in your terminal)
+```sh
+'cd repo_name'
+'cd backend'
+'touch .env' (in your terminal)
+```
 
 Set the following API keys and links as follows:
     - PORT=8000 (ensure the port is not in use elsewhere)
@@ -144,20 +146,30 @@ Set the following API keys and links as follows:
 
 
 ### Run the Application
-    - cd your-rep
+```sh
+cd your-rep 
+```
     
-    Run the following commands
-    - cd frontend
-    - npm install (install dependencies)
+Run the following commands:
+
+```sh
+'cd frontend'
+'npm install'  (install dependencies)
+```
     
-    Navigate to the backend directory
-    - cd ..
-    - cd backend
+Navigate to the backend directory:
+```sh
+'cd ..'
+'cd backend'
+```
 
-    Run the following commands
-    - npm install (install dependencies)
-    - npm run dev
+Run the following commands:
 
-    Access the application on http://localhost:5173/
+```sh
+'npm install' (install dependencies)
+'npm run dev'
+```
+
+Access the application on http://localhost:5173/
     
     
