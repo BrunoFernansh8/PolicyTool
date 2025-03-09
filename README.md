@@ -18,15 +18,13 @@ This project is aimed to allow for organisations and IT employees who lack inten
 
 #   2. Setting Up MongoDB Atlas & Connecting to Local Collections  
 
-    # Step (i): Create a Free MongoDB Atlas Account  
-
 1. Go to **[MongoDB Atlas](https://www.mongodb.com/atlas/database)**
 2. Click **"Sign Up"** and create an account using **email/GitHub/Google**.
 3. Verify your email and log in.
 
 ---
 
-    # Step (ii): Set Up a Free Cluster  
+SET UP A FREE CLUSTER:
 
 1. Click **"Create a New Project"** (or use the default one).  
 2. Click **"Build a Cluster"** and choose the **Free Shared** tier.  
@@ -34,7 +32,10 @@ This project is aimed to allow for organisations and IT employees who lack inten
 4. Name your cluster (e.g., `MyCluster`).  
 5. Click **"Create"** (it may take a few minutes for the cluster to be ready).  
 
-    # Step (iii): Configure Database Access  
+---
+
+
+CONFIGURE DATABASE ACCESS:
 
 1. Navigate to **Database Access** in the left menu.  
 2. Click **"Add New Database User"**.  
@@ -44,96 +45,101 @@ This project is aimed to allow for organisations and IT employees who lack inten
 4. Select **"Read and Write"** role.  
 5. Click **"Add User"**.  
 
-    ---
+---
 
-    # Step (iv): Allow IP Access  
+ALLOW IP ACCESS:
 
-    1. Navigate to **Network Access** in the left menu.  
-    2. Click **"Add IP Address"**.  
-    3. Choose one of the options:  
-    - **Allow Access from Anywhere** (for testing)  
-    - **Manually add your IP** (recommended for security)  
-    4. Click **"Confirm"**.  
+1. Navigate to **Network Access** in the left menu.  
+2. Click **"Add IP Address"**.  
+3. Choose one of the options:  
+- **Allow Access from Anywhere** (for testing)  
+- **Manually add your IP** (recommended for security)  
+4. Click **"Confirm"**.  
 
-    ---
+---
 
-    # Step (v): Get Your Connection URI  
+GET YOUR CONNECTION URI:
 
-    1. Navigate to **Clusters** and click **"Connect"** on your cluster.  
-    2. Select **"Connect your application"**.  
-    3. Copy the **MongoDB URI**, which looks like this:  
+1. Navigate to **Clusters** and click **"Connect"** on your cluster.  
+2. Select **"Connect your application"**.  
+3. Copy the **MongoDB URI**, which looks like this:  
 
-    ```sh
-    mongodb+srv://user123:password123@cluster0.mongodb.net/myDatabase?retryWrites=true&w=majority 
-    ```
-    Replace the placeholder values:
-        - user123 -> Your Database username
-        - password123 -> Your Database password
-        - myDatabase -> Name of your database (Not your cluster)
+```sh
+mongodb+srv://user123:password123@cluster0.mongodb.net/myDatabase?retryWrites=true&w=majority 
+```
+Replace the placeholder values:
+    - user123 -> Your Database username
+    - password123 -> Your Database password
+    - myDatabase -> Name of your database (Not your cluster)
     
     
     
 #   3. A **JWT (JSON Web Token) secret key** is used to sign and verify tokens for authentication and security.
     
-    # Step (i): Generate a Secure JWT Secret Key
+GENERATE A SECURE JWT SECREY KEY:
 
-    Choose one of the following methods:
+Choose one of the following methods:
 
-    **Method 1: Using Node.js**
-    Run the following command in your terminal:
-    ```sh
-    node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
-    - This will generate a random 64-byte secrey key
+**Method 1: Using Node.js**
+Run the following command in your terminal:
+```sh
+node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
 
+This will generate a random 64-byte secrey key
+```
 
-    **Method 2: Usinf OpenSSL**
-    Run the following command in your terminal:
-    'openssl rand -hex 64'
-    - This will generate a secure 64-character key 
+**Method 2: Usinf OpenSSL**
+Run the following command in your terminal:
+```sh
+"openssl rand -hex 64"
+```
 
-    
+This will generate a secure 64-character key 
+
+---
     
  #  4. Generating your own OpenAI API key (Credits required)
 
-    # Step (i) Create an OpenAI Account
-    1. **Go to OpenAI's website**:  
-    [https://platform.openai.com/signup](https://platform.openai.com/signup)  
-    2. Click **"Sign Up"** and create an account using **email/GitHub/Google/Microsoft**.  
-    3. **Verify your email** and log in.  
-    4. **Complete phone number verification** (required for security).  
+CREATE OPENAI ACCOUNT
 
-    # Step (ii): Add Credits/Tokens  
+1. **Go to OpenAI's website**:  
+[https://platform.openai.com/signup](https://platform.openai.com/signup)  
+2. Click **"Sign Up"** and create an account using **email/GitHub/Google/Microsoft**.  
+3. **Verify your email** and log in.  
+4. **Complete phone number verification** (required for security).  
 
-    1. **Go to the Billing Section**:  
-    [https://platform.openai.com/account/billing](https://platform.openai.com/account/billing)  
-    2. Click **"Add Payment Method"** and enter your credit/debit card details.  
-    3. Once your payment method is added, click **"Add Funds"**.  
-    4. Select the amount you want to add (e.g., **$5, $10, or more**).  
-    5. **Once the payment is processed, your account balance will be updated**, allowing you to generate more tokens.
+ADD CREDITS/API TOKENS 
 
-    **Note:** If you're a new user, OpenAI may provide **$6 in free credits** automatically, which can be used without adding a payment method. Check your **Usage Dashboard**:  
-    [https://platform.openai.com/account/usage](https://platform.openai.com/account/usage)  
+1. **Go to the Billing Section**:  
+[https://platform.openai.com/account/billing](https://platform.openai.com/account/billing)  
+2. Click **"Add Payment Method"** and enter your credit/debit card details.  
+3. Once your payment method is added, click **"Add Funds"**.  
+4. Select the amount you want to add (e.g., **$5, $10, or more**).  
+5. **Once the payment is processed, your account balance will be updated**, allowing you to generate more tokens.
+
+**Note:** If you're a new user, OpenAI may provide **$6 in free credits** automatically, which can be used without adding a payment method. Check your **Usage Dashboard**:  
+[https://platform.openai.com/account/usage](https://platform.openai.com/account/usage)  
 
 
-    # Step (iii): Generate Your API Key  
+GENERATE YOUR API KEY
 
-    1. **Go to API Key Management**:  
-    [https://platform.openai.com/api-keys](https://platform.openai.com/api-keys)  
-    2. Click **"Create API Key"**.  
-    3. Copy the generated key **immediately**, as OpenAI won’t show it again.  
-    4. **Store it securely** in a `.env` file (see next step).  
+1. **Go to API Key Management**:  
+[https://platform.openai.com/api-keys](https://platform.openai.com/api-keys)  
+2. Click **"Create API Key"**.  
+3. Copy the generated key **immediately**, as OpenAI won’t show it again.  
+4. **Store it securely** in a `.env` file (see next step).  
 
 
 #   5. Create your own private .env file in the 'backend' directory:
-        - cd your-repo
-        - cd backend
-        - touch .env (in your terminal)
-    
-    Set the following API keys and links as follows:
-        - PORT=8000 (ensure the port is not in use elsewhere)
-        - MONGO_URI= 'your_mongo_uri_here' (created frmo MongoDB Atlas)
-        - JWT_SECRET = 'your_jwt_secret_key_here'
-        - OPENAI_API_KEY = 'your_openai_api_key_here'
+    - cd your-repo
+    - cd backend
+    - touch .env (in your terminal)
+
+Set the following API keys and links as follows:
+    - PORT=8000 (ensure the port is not in use elsewhere)
+    - MONGO_URI= 'your_mongo_uri_here' (created frmo MongoDB Atlas)
+    - JWT_SECRET = 'your_jwt_secret_key_here'
+    - OPENAI_API_KEY = 'your_openai_api_key_here'
 
 
 
