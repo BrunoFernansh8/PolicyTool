@@ -67,7 +67,8 @@ GET YOUR CONNECTION URI:
 ```sh
 mongodb+srv://user123:password123@cluster0.mongodb.net/myDatabase?retryWrites=true&w=majority 
 ```
-Replace the placeholder values:
+4. Replace the placeholder values:
+
     - user123 -> Your Database username
     - password123 -> Your Database password
     - myDatabase -> Name of your database (Not your cluster)
@@ -83,7 +84,7 @@ Choose one of the following methods:
 **Method 1: Using Node.js**
 Run the following command in your terminal:
 ```sh
-node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
+node -e console.log(require('crypto').randomBytes(64).toString('hex'))
 
 This will generate a random 64-byte secrey key
 ```
@@ -91,11 +92,11 @@ This will generate a random 64-byte secrey key
 **Method 2: Usinf OpenSSL**
 Run the following command in your terminal:
 ```sh
-"openssl rand -hex 64"
-```
+openssl rand -hex 64
+
 
 This will generate a secure 64-character key 
-
+```
 ---
     
  #  4. Generating your own OpenAI API key (Credits required)
@@ -137,7 +138,7 @@ GENERATE YOUR API KEY
 'touch .env' (in your terminal)
 ```
 
-Set the following API keys and links as follows:
+1. Set the following API keys and links as follows:
     - PORT=8000 (ensure the port is not in use elsewhere)
     - MONGO_URI= 'your_mongo_uri_here' (created frmo MongoDB Atlas)
     - JWT_SECRET = 'your_jwt_secret_key_here'
