@@ -14,37 +14,35 @@ This project is aimed to allow for organisations and IT employees who lack inten
 
 ### Installation & Setup
 #   1. Clone the Repository:
-        - git clone "https://github.com/BrunoFernansh/PoicyTool
+        git clone "https://github.com/BrunoFernansh/PoicyTool"
 
 #   2. Setting Up MongoDB Atlas & Connecting to Local Collections  
 
     # Step (i): Create a Free MongoDB Atlas Account  
 
-    1. Go to **[MongoDB Atlas](https://www.mongodb.com/atlas/database)**
-    2. Click **"Sign Up"** and create an account using **email/GitHub/Google**.
-    3. Verify your email and log in.
+1. Go to **[MongoDB Atlas](https://www.mongodb.com/atlas/database)**
+2. Click **"Sign Up"** and create an account using **email/GitHub/Google**.
+3. Verify your email and log in.
 
 ---
 
     # Step (ii): Set Up a Free Cluster  
 
-    1. Click **"Create a New Project"** (or use the default one).  
-    2. Click **"Build a Cluster"** and choose the **Free Shared** tier.  
-    3. Select the **Cloud Provider & Region** closest to you.  
-    4. Name your cluster (e.g., `MyCluster`).  
-    5. Click **"Create"** (it may take a few minutes for the cluster to be ready).  
-
-    ---
+1. Click **"Create a New Project"** (or use the default one).  
+2. Click **"Build a Cluster"** and choose the **Free Shared** tier.  
+3. Select the **Cloud Provider & Region** closest to you.  
+4. Name your cluster (e.g., `MyCluster`).  
+5. Click **"Create"** (it may take a few minutes for the cluster to be ready).  
 
     # Step (iii): Configure Database Access  
 
-    1. Navigate to **Database Access** in the left menu.  
-    2. Click **"Add New Database User"**.  
-    3. Choose **"Username & Password"** authentication and set:  
+1. Navigate to **Database Access** in the left menu.  
+2. Click **"Add New Database User"**.  
+3. Choose **"Username & Password"** authentication and set:  
     - **Username** (e.g., `user123`)  
     - **Password** (e.g., `password123`)  
-    4. Select **"Read and Write"** role.  
-    5. Click **"Add User"**.  
+4. Select **"Read and Write"** role.  
+5. Click **"Add User"**.  
 
     ---
 
