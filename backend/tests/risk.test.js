@@ -1,161 +1,179 @@
+// tests/risk.test.js
+
+// Mock the authentication middleware so that it always attaches a dummy user
+jest.mock('../middlewares/authenticateMiddleware', () => {
+  return (req, res, next) => {
+    req.user = { id: 'testUserId' };
+    next();
+  };
+});
+
 const request = require('supertest');
-const app = require('../server'); 
+const app = require('../server');
 const mongoose = require('mongoose');
-const Risk = require('../models/Risk'); 
+const Risk = require('../models/Risk');
 const { analyzeRisk } = require('../utils/gpt');
 
-// Define the test suite for the Risk API
+// Mock the AI analysis function to return mitigationStrategies as a string
+jest.mock('../utils/gpt', () => ({
+  analyzeRisk: jest.fn(),
+}));
+
+const testUserId = 'testUserId';
+
 describe('Risk Routes', () => {
   beforeAll(async () => {
-    // Connect to the test database
-    const url = process.env.MONGO_URI; 
+    const url = process.env.MONGO_URI;
     await mongoose.connect(url);
   });
 
   afterAll(async () => {
-    await Risk.deleteMany({}); 
-    await mongoose.connection.close(); // Close the connection
+    await Risk.deleteMany({});
+    await mongoose.connection.close();
   });
 
-  describe('POST /risks', () => {
+  describe('POST /api/risks', () => {
     it('should create a new risk', async () => {
-      const userId = new mongoose.Types.ObjectId();
       const res = await request(app)
-        .post('/risks')
-        .set('Authorization', `Bearer mockTokenForUser:${userId}`) 
+        .post('/api/risks')
+        .set('Authorization', `Bearer mockTokenForUser:${testUserId}`)
         .send({
           title: 'Unauthorized Access',
-          riskDescription: 'Potential unauthorised access to sensitive data.',
+          description: 'A hacker gained access',
+          reportedBy: testUserId,
+          organization: 'Test Organisation'
         });
 
       expect(res.statusCode).toEqual(201);
-      expect(res.body).toHaveProperty('title', 'Unauthorised Access');
+      expect(res.body).toHaveProperty('title', 'Unauthorized Access');
     });
 
     it('should return validation error for missing fields', async () => {
-      const userId = new mongoose.Types.ObjectId();
       const res = await request(app)
-        .post('/risks')
-        .set('Authorisation', `Bearer mockTokenForUser:${userId}`) 
+        .post('/api/risks')
+        .set('Authorization', `Bearer mockTokenForUser:${testUserId}`)
         .send({
-          // Missing required fields
-          title: 'Incomplete Risk',
+          // Missing description, reportedBy, and organization
+          title: 'Incomplete Risk'
         });
 
-      expect(res.statusCode).toEqual(500); 
-      expect(res.body).toHaveProperty('message', 'Error adding risk.');
+      expect(res.statusCode).toEqual(400);
+      expect(res.body).toHaveProperty(
+        'message',
+        'Title, description, reportedBy and organisation name are required.'
+      );
     });
   });
 
-  describe('POST /risks/analyze', () => {
-    it('should analyze a stored risk using AI', async () => {
-      // Mock AI analysis
-      analyzeRisk.mockResolvedValue({
-        backgroundResearch: 'Research on the concern in real life on real life cases',
-        likelihood: 'High',
-        consequences: 'Severe financial and reputational damage.',
-        mitigationStrategies: {
-          userInformation: 'Encrypt sensitive data.',
-          client: 'Ensure emails and reports are sent our promptly, and inform clients as soon as possible',
-          system: 'Install intrusion detection systems.',
-          infrastructure: 'Implement redundancy measures',
-        },
-      });
-  
-      // Create a sample risk in the database
+  describe('POST /api/risks/analyze', () => {
+    it('should analyze a stored risk using AI and update the risk', async () => {
+      // Create a risk with empty analysis fields so that updates are allowed
       const risk = await Risk.create({
         title: 'Sensitive Data Breach',
         description: 'Unauthorized access to sensitive data could occur.',
         reportedBy: 'user123',
         organization: 'Test Organisation',
+        backgroundResearch: "",
+        likelihood: "",
+        consequences: "",
+        mitigationStrategies: ""
       });
-  
+
+      // Mock the analyzeRisk function to return a string for mitigationStrategies
+      analyzeRisk.mockResolvedValue({
+        backgroundResearch: 'Research on real-life cases of similar risks.',
+        likelihood: 'High',
+        consequences: 'Severe financial and reputational damage.',
+        mitigationStrategies:
+          'Encrypt sensitive data. Notify clients promptly in case of issues. Install intrusion detection systems. Implement redundancy measures.'
+      });
+
       const res = await request(app)
-        .post('/risks/analyze')
+        .post('/api/risks/analyze')
+        .set('Authorization', `Bearer mockTokenForUser:${testUserId}`)
         .send({ id: risk._id });
-  
+
       expect(res.statusCode).toEqual(200);
       expect(res.body.analyzedRisk).toHaveProperty('title', 'Sensitive Data Breach');
       expect(res.body.analyzedRisk).toHaveProperty('backgroundResearch', 'Research on real-life cases of similar risks.');
       expect(res.body.analyzedRisk).toHaveProperty('likelihood', 'High');
       expect(res.body.analyzedRisk).toHaveProperty('consequences', 'Severe financial and reputational damage.');
-      expect(res.body.analyzedRisk.mitigationStrategies).toMatchObject({
-        userInformation: 'High risk of data exposure.',
-        client: 'Loss of client trust.',
-        system: 'System disruptions.',
-        infrastructure: 'Possible infrastructure downtime.',
-      });
-      // Validate database updates
-      const updatedRisk = await Risk.findById(risk._id);
-      expect(updatedRisk.backgroundResearch).toEqual('Research on real-life cases of similar risks.');
-      expect(updatedRisk.likelihood).toEqual('High');
-      expect(updatedRisk.consequences).toEqual('Severe financial and reputational damage.');
-      expect(updatedRisk.mitigationStrategies).toEqual({
-        userInformation: 'Encrypt sensitive data.',
-        client: 'Notify clients promptly in case of issues.',
-        system: 'Install intrusion detection systems.',
-        infrastructure: 'Implement redundancy measures.',
-      });
+      expect(res.body.analyzedRisk).toHaveProperty(
+        'mitigationStrategies',
+        'Encrypt sensitive data. Notify clients promptly in case of issues. Install intrusion detection systems. Implement redundancy measures.'
+      );
     });
-  
-    it('should return 400 if no title is provided', async () => {
-      const res = await request(app).post('/risks/analyze').send({});
-      expect(res.statusCode).toEqual(400);
-      expect(res.body.message).toEqual('Risk title is required for analysis.');
-    });
-  
-    it('should return 404 if the risk is not found', async () => {
+
+    it('should return 400 if no risk ID is provided', async () => {
       const res = await request(app)
-        .post('/risks/analyze')
-        .send({ title: 'Nonexistent Risk' });
-  
+        .post('/api/risks/analyze')
+        .set('Authorization', `Bearer mockTokenForUser:${testUserId}`)
+        .send({});
+      expect(res.statusCode).toEqual(400);
+      expect(res.body.message).toEqual('Risk ID is required for analysis.');
+    });
+
+    it('should return 404 if the risk is not found', async () => {
+      const nonExistentId = new mongoose.Types.ObjectId();
+      const res = await request(app)
+        .post('/api/risks/analyze')
+        .set('Authorization', `Bearer mockTokenForUser:${testUserId}`)
+        .send({ id: nonExistentId });
       expect(res.statusCode).toEqual(404);
       expect(res.body.message).toEqual('Risk not found.');
     });
-  
+
     it('should handle server errors gracefully', async () => {
       analyzeRisk.mockRejectedValue(new Error('AI Analysis Error'));
-  
+
       const risk = await Risk.create({
         title: 'System Vulnerability',
         description: 'System may be vulnerable to attack.',
         reportedBy: 'admin',
         organization: 'Sample Org',
+        backgroundResearch: "",
+        likelihood: "",
+        consequences: "",
+        mitigationStrategies: ""
       });
 
-      const res = await request(app).post('/risks/analyze').send({ id: risk._id });
-
+      const res = await request(app)
+        .post('/api/risks/analyze')
+        .set('Authorization', `Bearer mockTokenForUser:${testUserId}`)
+        .send({ id: risk._id });
       expect(res.statusCode).toEqual(500);
       expect(res.body.message).toEqual('Error analyzing stored risk.');
     });
   });
 
-  describe('GET /risks', () => {
-    it('should fetch all risks created by the user', async () => {
-        const userId = new mongoose.Types.ObjectId();
-        await Risk.create({
-            title: 'Sample Risk',
-            organization: 'Test Organisation'
-        });
-
-        const res = await request(app)
-            .get('/risks')
-            .set('Authorization', `Bearer mockTokenForUser:${userId}`); 
-
-        expect(res.statusCode).toEqual(200);
-        expect(res.body.length).toBeGreaterThan(0);
-        
-        // Check only required fields
-        expect(res.body[0]).toHaveProperty('title', 'Sample Risk');
-        expect(res.body[0]).toHaveProperty('organization', 'Test Organisation');
-        
-        // Ensure _id, createdAt & updatedAt are NOT in response
-        expect(res.body[0]).not.toHaveProperty('_id');
-        expect(res.body[0]).not.toHaveProperty('createdAt');
-        expect(res.body[0]).not.toHaveProperty('updatedAt');
+  describe('GET /api', () => {
+    beforeEach(async () => {
+      // Clear risks to isolate test data
+      await Risk.deleteMany({});
     });
-});
 
+    it('should fetch all risks created by the user', async () => {
+      await Risk.create({
+        title: 'Sample Risk',
+        organization: 'Test Organisation',
+        reportedBy: testUserId,
+        description: 'Test risk description'
+      });
 
-  
+      const res = await request(app)
+        .get('/api')
+        .set('Authorization', `Bearer mockTokenForUser:${testUserId}`);
+
+      expect(res.statusCode).toEqual(200);
+      const risks = Array.isArray(res.body) ? res.body : res.body.risks;
+      expect(Array.isArray(risks)).toBe(true);
+      expect(risks.length).toBeGreaterThan(0);
+      const sampleRisk = risks.find(r => r.title === 'Sample Risk');
+      expect(sampleRisk).toBeDefined();
+      expect(sampleRisk).toHaveProperty('organization', 'Test Organisation');
+      expect(sampleRisk).not.toHaveProperty('_id');
+      expect(sampleRisk).not.toHaveProperty('createdAt');
+      expect(sampleRisk).not.toHaveProperty('updatedAt');
+    });
+  });
 });

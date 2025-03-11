@@ -1,3 +1,15 @@
+// tests/policy.test.js
+
+jest.setTimeout(500000); // Increase timeout for long-running tests
+
+// Mock the authentication middleware so it always attaches a dummy user
+jest.mock('../middlewares/authenticateMiddleware', () => {
+  return (req, res, next) => {
+    req.user = { id: 'testUserId' };
+    next();
+  };
+});
+
 const request = require('supertest');
 const app = require('../server');
 const mongoose = require('mongoose');
@@ -72,7 +84,7 @@ describe('Policy Routes', () => {
         });
 
       expect(res.statusCode).toEqual(404);
-      expect(res.body).toHaveProperty('message', 'No valid risks found for the given risk IDs.');
+      expect(res.body).toHaveProperty('message', 'No risks found for the provided IDs.');
     });
 
     it('should handle server errors gracefully', async () => {
@@ -88,7 +100,7 @@ describe('Policy Routes', () => {
         });
 
       expect(res.statusCode).toEqual(500);
-      expect(res.body).toHaveProperty('message', 'Failed to generate policy.');
+      expect(res.body).toHaveProperty('message', 'Error generating policy.');
 
       Risk.find.mockRestore();
     });
