@@ -20,7 +20,7 @@ const getRisks = async (req, res) => {
     }
 
     // Fetch risks with all relevant fields
-    const risks = await Risk.find(query).select('-__v'); // Excludes MongoDB version key
+    const risks = await Risk.find(query).select('-__v -_id -createdAt -updatedAt'); // Excludes MongoDB version key
 
     if (risks.length === 0) {
       return res.status(404).json({ message: "No risks found for this title and organization." });

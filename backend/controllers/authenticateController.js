@@ -11,13 +11,20 @@ const generateToken = (id) => {
 // Register SuperUser
 exports.registerSuperUser = async (req, res) => {
   const { name, email, password, postcode, companyName } = req.body;
+  // Allow companyName to come either as a top-level field or as part of a company object
+  const companyNameToUse = companyName || (req.body.company && req.body.company.name);
+
+  // Validate required fields without changing variable names
+  if (!name || !email || !password || !companyNameToUse) {
+    return res.status(400).json({ errors: 'Missing required fields' });
+  }
 
   try {
     // Generate unique organisation password
     const organisationPassword = require('crypto').randomBytes(16).toString('hex');
 
-    // Create company
-    const company = new Company({ name: companyName, uniquePassword: organisationPassword });
+    // Create company using the resolved company name
+    const company = new Company({ name: companyNameToUse, uniquePassword: organisationPassword });
     await company.save();
 
     // Create SuperUser
@@ -35,7 +42,11 @@ exports.registerSuperUser = async (req, res) => {
     company.superuser = superuser._id;
     await company.save();
 
-    res.status(201).json({ message: 'SuperUser registered successfully', organisationPassword });
+    res.status(201).json({ 
+      message: 'SuperUser registered successfully', 
+      superuser: { email: superuser.email },
+      organisationPassword 
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Error registering SuperUser. Credentials Invalid or Duplicate. View the database for more information.' });
@@ -46,11 +57,16 @@ exports.registerSuperUser = async (req, res) => {
 exports.registerUser = async (req, res) => {
   const { name, email, password, postcode, organisationPassword } = req.body;
 
+  // Validate required fields
+  if (!name || !email || !password || !postcode || !organisationPassword) {
+    return res.status(400).json({ errors: 'Missing required fields' });
+  }
+
   try {
     // Find company by organisation password
     const company = await Company.findOne({ uniquePassword: organisationPassword });
     if (!company) {
-      return res.status(400).json({ message: 'Invalid organisation password' });
+      return res.status(400).json({ errors: 'Invalid organisation password' });
     }
 
     // Create user
@@ -68,7 +84,7 @@ exports.registerUser = async (req, res) => {
     company.employees.push(user._id);
     await company.save();
 
-    res.status(201).json({ message: 'User registered successfully' });
+    res.status(201).json({ message: 'User registered successfully', user: { email: user.email } });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Error registering user' });
