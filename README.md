@@ -171,6 +171,6 @@ Run the following commands:
 'npm run dev'
 ```
 
-Access the application on http://localhost:5173/
+Access the application on http://localhost:5173/ or http://localhost:8000/
     
     
