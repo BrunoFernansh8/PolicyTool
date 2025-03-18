@@ -80,7 +80,7 @@ describe('Policy Routes', () => {
         .post('/api/policy/policies')
         .send({
           organization: 'Example Company',
-          riskIds: ['64f10c2a4f17e255ad9b51c2'], // Invalid/non-existent ID
+          riskIds: ['64f10c2a4f17e255ad9b51c2'], // Invalid, non-existent ID
         });
 
       expect(res.statusCode).toEqual(404);

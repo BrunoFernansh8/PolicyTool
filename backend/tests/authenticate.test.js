@@ -21,10 +21,10 @@ describe('Authentication Routes', () => {
       const res = await request(app)
         .post('/api/auth/register/superuser')
         .send({
-          name: 'SuperUser Name',
+          name: 'SuperUserName', 
           email: 'superuser@example.com',
           password: 'securepassword',
-          company: { name: 'Example Company' }
+          company: { name: 'ExampleCompany' } 
         });
       // Expected response: a success message and an organisationPassword property
       expect(res.statusCode).toEqual(201);
@@ -40,7 +40,7 @@ describe('Authentication Routes', () => {
         .send({
           email: 'superuser@example.com',
           password: 'securepassword'
-          // Missing name and company
+          
         });
       expect(res.statusCode).toEqual(400);
       expect(res.body).toHaveProperty('errors');
@@ -49,14 +49,13 @@ describe('Authentication Routes', () => {
 
   describe('POST /api/auth/register/user', () => {
     it('should register a new user', async () => {
-      // First, create a superuser to generate an organisation password
       const superuserRes = await request(app)
         .post('/api/auth/register/superuser')
         .send({
-          name: 'SuperUser Name',
+          name: 'SuperUserName', 
           email: 'superuser2@example.com',
           password: 'securepassword',
-          company: { name: 'Example Company' }
+          company: { name: 'ExampleCompany' } 
         });
       expect(superuserRes.statusCode).toEqual(201);
       const organisationPassword = superuserRes.body.organisationPassword;
@@ -64,11 +63,10 @@ describe('Authentication Routes', () => {
       const res = await request(app)
         .post('/api/auth/register/user')
         .send({
-          name: 'Employee Name',
+          name: 'EmployeeName', 
           email: 'employee@example.com',
           password: 'securepassword',
           postcode: '12345',
-          company: { name: 'Example Company' },
           organisationPassword: organisationPassword
         });
       expect(res.statusCode).toEqual(201);
@@ -82,7 +80,6 @@ describe('Authentication Routes', () => {
         .send({
           email: 'employee@example.com',
           password: 'securepassword'
-          // Missing name, postcode, company, and organisationPassword
         });
       expect(res.statusCode).toEqual(400);
       expect(res.body).toHaveProperty('errors');
