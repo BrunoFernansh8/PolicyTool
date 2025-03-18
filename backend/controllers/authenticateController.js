@@ -8,26 +8,42 @@ const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '1d' });
 };
 
+// Function to validate email format
+const isValidEmail = (email) => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+};
+
+// Function to validate name format (only letters allowed)
+const isValidName = (name) => {
+  const nameRegex = /^[A-Za-z]+$/;
+  return nameRegex.test(name);
+};
+
 // Register SuperUser
 exports.registerSuperUser = async (req, res) => {
   const { name, email, password, postcode, companyName } = req.body;
-  // Allow companyName to come either as a top-level field or as part of a company object
   const companyNameToUse = companyName || (req.body.company && req.body.company.name);
 
-  // Validate required fields without changing variable names
+  // Validate required fields
   if (!name || !email || !password || !companyNameToUse) {
     return res.status(400).json({ errors: 'Missing required fields' });
   }
 
+  // Validate email and name format
+  if (!isValidEmail(email)) {
+    return res.status(400).json({ errors: 'Invalid email format (e.g valid email: hello@testing.com' });
+  }
+  if (!isValidName(name)) {
+    return res.status(400).json({ errors: 'Invalid name format. Only letters are allowed (e.g Safian).' });
+  }
+
   try {
-    // Generate unique organisation password
     const organisationPassword = require('crypto').randomBytes(16).toString('hex');
 
-    // Create company using the resolved company name
     const company = new Company({ name: companyNameToUse, uniquePassword: organisationPassword });
     await company.save();
 
-    // Create SuperUser
     const superuser = new User({
       name,
       email,
@@ -38,7 +54,6 @@ exports.registerSuperUser = async (req, res) => {
     });
     await superuser.save();
 
-    // Link company to SuperUser
     company.superuser = superuser._id;
     await company.save();
 
@@ -62,14 +77,20 @@ exports.registerUser = async (req, res) => {
     return res.status(400).json({ errors: 'Missing required fields' });
   }
 
+  // Validate email and name format
+  if (!isValidEmail(email)) {
+    return res.status(400).json({ errors: 'Invalid email format' });
+  }
+  if (!isValidName(name)) {
+    return res.status(400).json({ errors: 'Invalid name format. Only letters are allowed.' });
+  }
+
   try {
-    // Find company by organisation password
     const company = await Company.findOne({ uniquePassword: organisationPassword });
     if (!company) {
       return res.status(400).json({ errors: 'Invalid organisation password' });
     }
 
-    // Create user
     const user = new User({
       name,
       email,
@@ -80,7 +101,6 @@ exports.registerUser = async (req, res) => {
     });
     await user.save();
 
-    // Add user to company
     company.employees.push(user._id);
     await company.save();
 
@@ -90,6 +110,7 @@ exports.registerUser = async (req, res) => {
     res.status(500).json({ message: 'Error registering user' });
   }
 };
+
 
 // Login User
 exports.loginUser = async (req, res) => {

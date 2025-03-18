@@ -5,16 +5,26 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const app = express();
 
-// Middleware
+
 app.use(express.json());
 app.use(cors());
 
+if (process.env.NODE_ENV !== 'test') {
+  const PORT = process.env.PORT || 8000;
+  app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+  });
+}
 
 const authenticateRoutes = require('./routes/authenticateRoutes');
 const riskRoutes = require('./routes/riskRoutes');
 const policyRoutes = require('./routes/policyRoutes');
 
-const PORT = process.env.PORT || 8000;
+// Routes
+app.use('/api/auth', authenticateRoutes);
+app.use('/api/policy', policyRoutes);
+app.use('/api', riskRoutes);
+
 
 const frontendURL = path.join(__dirname, "../frontend/dist");
 app.use(express.static(frontendURL));
@@ -25,21 +35,14 @@ app.get("*", (req, res) => {
 
 mongoose.set('strictQuery', false);
 // MongoDB Connection
-mongoose.connect(process.env.MONGO_URI ,{ 
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-})
+mongoose.connect(process.env.MONGO_URI)
 .then(() => {
   console.log('Connected to MongoDB');
-  app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-  });
 })
 .catch((err) => {
   console.error('Database connection error:', err);
 });
 
-// Routes
-app.use('/api/auth', authenticateRoutes);
-app.use('/api/policy', policyRoutes);
-app.use('/api', riskRoutes);
+
+module.exports = app;
+
