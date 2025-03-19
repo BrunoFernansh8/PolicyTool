@@ -28,7 +28,6 @@ describe('Risk Routes', () => {
   });
 
   afterAll(async () => {
-    await Risk.deleteMany({});
     await mongoose.connection.close();
   });
 
@@ -142,16 +141,11 @@ describe('Risk Routes', () => {
         .set('Authorization', `Bearer mockTokenForUser:${testUserId}`)
         .send({ id: risk._id });
       expect(res.statusCode).toEqual(500);
-      expect(res.body.message).toEqual('Error analyzing stored risk.');
+      expect(res.body.message).toEqual('Error analysing stored risk.');
     });
   });
 
   describe('GET /api', () => {
-    beforeEach(async () => {
-      // Clear risks to isolate test data
-      await Risk.deleteMany({});
-    });
-
     it('should fetch all risks created by the user', async () => {
       await Risk.create({
         title: 'Sample Risk',

@@ -7,7 +7,7 @@ exports.generatePolicy = async (req, res) => {
 
   try {
     if (!organization || !riskIds || riskIds.length === 0) {
-      return res.status(400).json({ message: "Organization and risk IDs are required." });
+      return res.status(400).json({ message: "Organisation and risk IDs are required." });
     }
 
     // Fetch risks from the database

@@ -1,29 +1,26 @@
 const Risk = require('../models/Risk');
 const { analyzeRisk } = require('../utils/gpt');
 
-/**
- * Fetch all risks associated with the user's organization.
- */
+
 const getRisks = async (req, res) => {
   try {
-    const { title, organization } = req.query; // Extract query parameters
+    const { title, organization } = req.query; 
 
-    // Construct a query object to search by title & organization
     let query = {};
 
     if (title) {
-      query.title = { $regex: new RegExp(title, "i") }; // Case-insensitive title search
+      query.title = { $regex: new RegExp(title, "i") }; 
     }
 
     if (organization) {
-      query.organization = { $regex: new RegExp(organization, "i") }; // Case-insensitive organization search
+      query.organization = { $regex: new RegExp(organization, "i") }; 
     }
 
     // Fetch risks with all relevant fields
     const risks = await Risk.find(query).select('-__v -_id -createdAt -updatedAt'); // Excludes MongoDB version key
 
     if (risks.length === 0) {
-      return res.status(404).json({ message: "No risks found for this title and organization." });
+      return res.status(404).json({ message: "No risks found for this title and organisation." });
     }
 
     res.status(200).json(risks);
@@ -63,9 +60,7 @@ const addRisk = async (req, res) => {
   }
 };
 
-/**
- * Analyze a stored risk by its ID.
- */
+
 const analyzeStoredRiskById = async (req, res) => {
   try {
     const { id } = req.body;
@@ -111,8 +106,8 @@ const analyzeStoredRiskById = async (req, res) => {
 
     
   } catch (error) {
-    console.error('Error analyzing stored risk:', error.message || error);
-    res.status(500).json({ message: 'Error analyzing stored risk.' });
+    console.error('Error analysing stored risk:', error.message || error);
+    res.status(500).json({ message: 'Error analysing stored risk.' });
   }
 };
 const deleteRisk = async (req, res) => {
