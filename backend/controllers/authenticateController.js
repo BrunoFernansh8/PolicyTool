@@ -16,7 +16,7 @@ const isValidEmail = (email) => {
 
 // Function to validate name format (only letters allowed)
 const isValidName = (name) => {
-  const nameRegex = /^[A-Za-z]+$/;
+  const nameRegex = /^[A-Za-z]+(?:-[A-Za-z]+)*(?:\s[A-Za-z]+(?:-[A-Za-z]+)*)+$/;
   return nameRegex.test(name);
 };
 
