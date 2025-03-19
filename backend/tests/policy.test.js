@@ -1,8 +1,5 @@
-// tests/policy.test.js
-
 jest.setTimeout(500000); // Increase timeout for long-running tests
 
-// Mock the authentication middleware so it always attaches a dummy user
 jest.mock('../middlewares/authenticateMiddleware', () => {
   return (req, res, next) => {
     req.user = { id: 'testUserId' };
@@ -51,7 +48,7 @@ describe('Policy Routes', () => {
     await mongoose.connection.close();
   });
 
-  describe('POST /policies/generate', () => {
+  describe('POST /policies', () => {
     it('should generate a policy based on selected risk IDs', async () => {
       const res = await request(app)
         .post('/api/policy/policies')
@@ -72,7 +69,7 @@ describe('Policy Routes', () => {
         });
 
       expect(res.statusCode).toEqual(400);
-      expect(res.body).toHaveProperty('message', 'Organization and risk IDs are required.');
+      expect(res.body).toHaveProperty('message', 'Organisation and risk IDs are required.');
     });
 
     it('should return 404 if no valid risks are found for given IDs', async () => {
