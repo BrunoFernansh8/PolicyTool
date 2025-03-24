@@ -121,11 +121,40 @@ const generatePolicyContent = async (risks, organization) => {
     
     ${risks.map((risk, index) => `
     ### **Risk ${index + 1}: ${risk.title}**  
-    - **Background Research:** ${risk.backgroundResearch}  
-    - **Likelihood:** ${risk.likelihood}  
-    - **Consequences:** ${risk.consequences}  
-    - **Mitigation Strategies:** ${risk.mitigationStrategies}
+    - **Background Research**: ${risk.backgroundResearch}  
+    - **Likelihood**: ${risk.likelihood}  
+    - **Consequences**: ${risk.consequences}  
+    - **Mitigation Strategies**: ${risk.mitigationStrategies}
     `).join("\n")}
+
+    Double check that all risks are included verbatim from the database - ONLY DISPLAY THE RISK WHEN ALL THE DATA HAS BEEN RETRIEVED. WAIT FOR RETRIEVAL OTHERWISE AND ONLY CONFIRM THE POLICY GENERATION WHEN THE RISKS HAS BEEN ADDED!
+    With the information with several numbered information, list then in the policy document in the same order as they are listed in the database! Underneath each other for better and clearer formatting.
+
+    Example:
+
+    Risk 2: Insider Threat
+- Background Research: 
+Insider threats can stem from both malicious intent and negligence among employees or contractors. 
+Such threats are particularly dangerous as insiders have trusted access to critical systems and sensitive information, potentially causing significant financial and reputational damage.
+
+- Likelihood: 
+The likelihood of insider threats is moderate to high, given the inherent challenges in monitoring and controlling access among trusted personnel.
+
+- Consequences: 
+ 1. Financial: Direct financial losses due to fraud, remediation costs, and potential legal liabilities. 
+ 2. Asset: Compromise of intellectual property and critical data, undermining competitive advantage. 
+ 3. Client: Loss of customer trust and potential regulatory fines due to compromised client data. 
+ 4. System: Disruption in system performance and introduction of vulnerabilities. 
+ 5. Infrastructure: Erosion of overall security posture, necessitating extensive improvements in internal controls.
+ 
+- Mitigation Strategies: 
+ 1. Financial Risks: Implement robust monitoring of privileged user activities, invest in insider threat detection solutions, and establish clear incident response protocols. 
+ 2. Asset Risks: Restrict access using least privilege principles, enforce strict data handling policies, and conduct regular audits. 
+ 3. Client Risks: Enhance data protection measures and provide ongoing security training for employees, while maintaining transparent client communications. 
+ 4. System Risks: Continuously monitor systems for anomalies, enforce multi-factor authentication, and promptly patch vulnerabilities. 
+ 5. Infrastructure Risks: Regularly review and update security policies, conduct periodic risk assessments, and invest in advanced SIEM systems.
+  
+ End of example:
 
     **6. SUMMARY**  
     Summarize the document professionally.  
@@ -221,7 +250,8 @@ The likelihood of insider threats is moderate to high, given the inherent challe
 - Client: Loss of customer trust and potential regulatory fines due to compromised client data. 
 - System: Disruption in system performance and introduction of vulnerabilities. 
 - Infrastructure: Erosion of overall security posture, necessitating extensive improvements in internal controls.
- - Mitigation Strategies: - Financial Risks: Implement robust monitoring of privileged user activities, invest in insider threat detection solutions, and establish clear incident response protocols. 
+ 
+- Mitigation Strategies: - Financial Risks: Implement robust monitoring of privileged user activities, invest in insider threat detection solutions, and establish clear incident response protocols. 
 - Asset Risks: Restrict access using least privilege principles, enforce strict data handling policies, and conduct regular audits. 
 - Client Risks: Enhance data protection measures and provide ongoing security training for employees, while maintaining transparent client communications. 
 - System Risks: Continuously monitor systems for anomalies, enforce multi-factor authentication, and promptly patch vulnerabilities. 
@@ -299,6 +329,33 @@ Adherence to this policy is mandatory for all employees and contractors of Gumsa
 Regular reviews and updates will be conducted to ensure the policy remains effective and relevant. 
 Non-compliance may result in disciplinary action, up to and including termination of employment. 
 We are committed to maintaining a secure and reliable cloud environment for our operations and for the benefit of our clients.
+/n
+/n
+/n
+/n
+/n
+/n
+/n
+/n
+/n
+/n
+/n
+/n
+/n
+
+
+
+
+
+Signature: ________________         Full Name of Employee: _____________________
+
+
+
+
+
+
+
+Date: _________________________
 
 
 // END OF OUTPUT
@@ -319,7 +376,7 @@ NOTE: All of the risks information about the 'Identified Cybersecurity Risks and
           { role: "user", content: policyPrompt },
         ],
         temperature: 0, 
-        max_tokens: 4000, 
+        max_tokens: 3000, 
       },
       {
         headers: {
