@@ -29,12 +29,13 @@ exports.generatePolicyPDF = async (policyData, organization) => {
           console.warn(`Skipping invalid section at index ${index}`);
           return;
         }
-
+        
+        doc.moveDown(1);
         doc.font('Helvetica-Bold').fontSize(16).text(`${index + 1}. ${section.title}`, { underline: true });
         doc.moveDown(0.5);
 
         doc.font('Helvetica').fontSize(12).text(section.content, { align: 'justify' });
-        doc.moveDown(1);
+       
       });
 
       doc.end();

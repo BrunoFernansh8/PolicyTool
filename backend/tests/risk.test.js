@@ -1,6 +1,3 @@
-// tests/risk.test.js
-
-// Mock the authentication middleware so that it always attaches a dummy user
 jest.mock('../middlewares/authenticateMiddleware', () => {
   return (req, res, next) => {
     req.user = { id: 'testUserId' };
@@ -20,6 +17,7 @@ jest.mock('../utils/gpt', () => ({
 }));
 
 const testUserId = 'testUserId';
+const isTestEnvironment = process.env.NODE_ENV === 'test';
 
 describe('Risk Routes', () => {
   beforeAll(async () => {
@@ -28,6 +26,9 @@ describe('Risk Routes', () => {
   });
 
   afterAll(async () => {
+    if (isTestEnvironment) {
+      await Risk.deleteMany({});
+    }
     await mongoose.connection.close();
   });
 
@@ -145,29 +146,83 @@ describe('Risk Routes', () => {
     });
   });
 
-  describe('GET /api', () => {
-    it('should fetch all risks created by the user', async () => {
-      await Risk.create({
-        title: 'Sample Risk',
+  describe('GET /api/risk', () => {
+    let risk1, risk2;
+    
+    beforeEach(async () => {
+      risk1 = await Risk.create({
+        title: 'Unique Risk',
         organization: 'Test Organisation',
         reportedBy: testUserId,
-        description: 'Test risk description'
+        description: 'Test risk description 1',
+        
       });
-
-      const res = await request(app)
-        .get('/api')
-        .set('Authorization', `Bearer mockTokenForUser:${testUserId}`);
-
-      expect(res.statusCode).toEqual(200);
-      const risks = Array.isArray(res.body) ? res.body : res.body.risks;
-      expect(Array.isArray(risks)).toBe(true);
-      expect(risks.length).toBeGreaterThan(0);
-      const sampleRisk = risks.find(r => r.title === 'Sample Risk');
-      expect(sampleRisk).toBeDefined();
-      expect(sampleRisk).toHaveProperty('organization', 'Test Organisation');
-      expect(sampleRisk).not.toHaveProperty('_id');
-      expect(sampleRisk).not.toHaveProperty('createdAt');
-      expect(sampleRisk).not.toHaveProperty('updatedAt');
+      risk2 = await Risk.create({
+        title: 'Another Risk',
+        organization: 'Test Organisation',
+        reportedBy: testUserId,
+        description: 'Test risk description 2'
+      });
     });
-  });
+  
+    afterEach(async () => {
+      if (isTestEnvironment){
+        await Risk.deleteMany({});
+      }
+    });
+  
+    it('should fetch a single risk by title', async () => {
+      const res = await request(app)
+        .get('/api/getrisk')
+        .query({ title: 'Unique Risk' })
+        .set('Authorization', `Bearer mockTokenForUser:${testUserId}`);
+  
+      expect(res.statusCode).toEqual(200);
+      // When searching by title, we expect a single risk object (not an array)
+      expect(typeof res.body).toBe('object');
+      expect(res.body.title).toEqual('Unique Risk');
+      expect(res.body.organization).toEqual('Test Organisation');
+      expect(res.body).toHaveProperty('_id');
+      expect(res.body).not.toHaveProperty('createdAt');
+      expect(res.body).not.toHaveProperty('updatedAt');
+    });
+  
+    it('should fetch a single risk by riskId', async () => {
+      const res = await request(app)
+        .get('/api/getrisk')
+        .query({ riskId: risk1._id.toString() })
+        .set('Authorization', `Bearer mockTokenForUser:${testUserId}`);
+  
+      expect(res.statusCode).toEqual(200);
+      expect(typeof res.body).toBe('object');
+      expect(res.body.title).toEqual('Unique Risk');
+      expect(res.body.organization).toEqual('Test Organisation');
+      expect(res.body).toHaveProperty('_id');
+      expect(res.body).not.toHaveProperty('createdAt');
+      expect(res.body).not.toHaveProperty('updatedAt');
+    });
+  
+    it('should fetch all risks by organisation', async () => {
+      const res = await request(app)
+        .get('/api/getrisk')
+        .query({ organization: 'Test Organisation' })
+        .set('Authorization', `Bearer mockTokenForUser:${testUserId}`);
+  
+        expect(res.statusCode).toEqual(200);
+        // When searching by organization, we expect an array of risks
+        expect(Array.isArray(res.body)).toBe(true);
+        // At least two risks should be returned
+        expect(res.body.length).toBeGreaterThanOrEqual(1);
+        const riskTitles = res.body.map(risk => risk.title);
+        expect(riskTitles).toEqual(expect.arrayContaining(['Unique Risk', 'Another Risk']));
+        // Each risk should not include the excluded fields
+        res.body.forEach(risk => {
+          expect(risk).toHaveProperty('_id');
+          expect(risk).not.toHaveProperty('createdAt');
+          expect(risk).not.toHaveProperty('updatedAt');
+        });
+      });
+    });
+  
+  
 });

@@ -4,23 +4,31 @@ const { analyzeRisk } = require('../utils/gpt');
 
 const getRisks = async (req, res) => {
   try {
-    const { title, organization } = req.query; 
+    const { title, organization, riskId } = req.query; 
 
     let query = {};
 
     if (title) {
-      query.title = { $regex: new RegExp(title, "i") }; 
+      query.title = { $regex: new RegExp(title.trim(), "i") }; 
     }
 
     if (organization) {
-      query.organization = { $regex: new RegExp(organization, "i") }; 
+      query.organization = { $regex: new RegExp(organization.trim(), "i") }; 
+    }
+
+    if (riskId) {
+      query._id = riskId.trim();
     }
 
     // Fetch risks with all relevant fields
-    const risks = await Risk.find(query).select('-__v -_id -createdAt -updatedAt'); // Excludes MongoDB version key
-
+    const risks = await Risk.find(query).select('-__v -createdAt -updatedAt'); // Excludes MongoDB version key
+      
+    
     if (risks.length === 0) {
       return res.status(404).json({ message: "No risks found for this title and organisation." });
+    }
+    if (title || riskId) {
+      return res.status(200).json(risks[0]); // Return the first risk in the array
     }
 
     res.status(200).json(risks);
@@ -30,11 +38,6 @@ const getRisks = async (req, res) => {
   }
 };
 
-
-
-/**
- * Add a new risk to the organization's database.
- */
 const addRisk = async (req, res) => {
   try {
     const { title, description, reportedBy, organization } = req.body;
