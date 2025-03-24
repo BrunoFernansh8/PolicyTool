@@ -27,10 +27,9 @@
     "nodemon": "^3.1.9",
     "supertest": "^7.0.0"
   },
-
   "jest": {
     "transform": {
       "^.+\\.jsx?$": "babel-jest"
-    } 
+    }
   }
 }
