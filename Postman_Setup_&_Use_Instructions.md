@@ -20,11 +20,12 @@
 - Create folders inside the collection: `User`, `Superuser`.
 - Inside each folder, add the corresponding requests (see below).
 
-![Collections Setup](./Collections.png)
+![Collections](./InstructionImages/Collections.png)
+
 
 ### 3. Create an Environment
 - Go to the **Environments** tab (gear icon top-right).
-- Click **Add** and name it `LocalEnv`.
+- Click **Add** and give it a name (E.g `LocalEnv`).
 - Add the following variables:
 
 | Variable | Value |
@@ -33,7 +34,7 @@
 | PORT     | 8000 |
 | token    | *(set automatically on login – see below)* |
 
-> In your **Tests** tab of the `UserLogin` or `SuperuserLogin` request, paste the following code in scripts/post-response:
+> In your **Tests** tab of the `UserLogin` and `SuperuserLogin` request, paste the following code in scripts/post-response:
 ```javascript
 let response = pm.response.json();
 if (response.token) {
@@ -61,7 +62,6 @@ This ensures that the bearer token is stored automatically after login.
   "companyName": "{{CompanyName}}"
 }
 ```
-![RegisterUser](./RegisterUser.png)
 
 #### UserLogin  
 `POST {{host}}{{PORT}}/api/auth/login`
@@ -71,7 +71,6 @@ This ensures that the bearer token is stored automatically after login.
   "password": "{{personal password}}"
 }
 ```
-![UserLogin](./UserLogin.png)
 
 - After sending, copy the token from the response and set it as the value for `token` in your environment.
 
@@ -86,12 +85,19 @@ Auth: Bearer Token (use `{{token}}`)
   "organization": "{{Name of company}}"
 }
 ```
-![LogRisks](./image5.png)
 
 #### RetrieveRiskData  
 `GET {{host}}{{PORT}}/api/getrisk?organization={{Name of Organisation}}`  
+
+or
+
+`GET {{host}}{{PORT}}/api/getrisk?riskId={{"RiskIdNumber"}}`
+
+or
+
+`GET {{host}}{{PORT}}/api/getrisk?title={{Name of Title given to risk}}`
+
 Auth: Bearer Token
-![RetrieveRiskData](./image9.png)
 
 #### RiskAnalyser  
 `POST {{host}}{{PORT}}/api/risks/analyze`
@@ -100,7 +106,7 @@ Auth: Bearer Token
   "id": "{{Risk ID - retrieve from the database}}"
 }
 ```
-![RiskAnalyser](./image6.png)
+
 
 ---
 
@@ -117,7 +123,6 @@ Auth: Bearer Token
   "companyName": "{{Name of Organisation}}"
 }
 ```
-![RegisterSuperuser](./image7.png)
 
 #### SuperuserLogin  
 `POST {{host}}{{PORT}}/api/auth/login`
@@ -127,12 +132,10 @@ Auth: Bearer Token
   "password": "{{Personal Password}}"
 }
 ```
-![SuperuserLogin](./image8.png)
 
 #### DeleteRisk  
 `DELETE {{host}}{{PORT}}/api/risks/{{RiskID}}`  
 Auth: Bearer Token
-![DeleteRisk](./image9.png)
 
 #### PolicyGeneration  
 `POST {{host}}{{PORT}}/api/policy/policies`
@@ -142,7 +145,9 @@ Auth: Bearer Token
   "riskIds": [{{List of Risk IDs to be documented in the policy}}]
 }
 ```
-![PolicyGeneration](./image9.png)
+NOTE: Ensure that the riskIds submitted is in given in an array of strings.
+
+E.g "riskIds": ["riskId_1", "riskId_2", "riskId_3"]
 
 ---
 
@@ -165,7 +170,8 @@ Auth: Bearer Token
 4. Request risk analysis  
 5. (Optional) Delete risks  
 6. Generate policy  
-7. Download policy
+7. Download policy (from local '/policies' directory)
+8. (Optional) View organisation data on MongoDB database
 
 ### FOR USERS
 1. Register and log in  
