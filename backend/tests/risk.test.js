@@ -26,9 +26,7 @@ describe('Risk Routes', () => {
   });
 
   afterAll(async () => {
-    if (isTestEnvironment) {
-      await Risk.deleteMany({});
-    }
+    // Remove the Risk.deleteMany() call completely
     await mongoose.connection.close();
   });
 
@@ -165,11 +163,12 @@ describe('Risk Routes', () => {
       });
     });
   
-    afterEach(async () => {
-      if (isTestEnvironment){
-        await Risk.deleteMany({});
-      }
-    });
+    // Remove the afterEach block completely to prevent deletion
+    // afterEach(async () => {
+    //   if (isTestEnvironment){
+    //     await Risk.deleteMany({});
+    //   }
+    // });
   
     it('should fetch a single risk by title', async () => {
       const res = await request(app)
@@ -223,6 +222,4 @@ describe('Risk Routes', () => {
         });
       });
     });
-  
-  
 });

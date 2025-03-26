@@ -2,7 +2,7 @@
 node_modules/
 
 # Environment variables
-.env
+ /backend/.env
 
 # Logs
 logs/
@@ -36,6 +36,4 @@ public/assets/
 # System files
 *.swp
 *.swo
-.env
-backend/.env
-backend/.env.example
+
