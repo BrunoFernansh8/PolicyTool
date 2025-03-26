@@ -20,7 +20,7 @@
 - Create folders inside the collection: `User`, `Superuser`.
 - Inside each folder, add the corresponding requests (see below).
 
-![Collections](./InstructionImages/Collections.png)
+![Collections](./frontend/public/assets/Collections.png)
 
 
 ### 3. Create an Environment
