@@ -8,29 +8,24 @@ const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '1d' });
 };
 
-// Function to validate email format
 const isValidEmail = (email) => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
 };
 
-// Function to validate name format (only letters allowed)
 const isValidName = (name) => {
   const nameRegex = /^[A-Za-z]+(?:-[A-Za-z]+)*(?:\s[A-Za-z]+(?:-[A-Za-z]+)*)*$/;
   return nameRegex.test(name);
 };
 
-// Register SuperUser
 exports.registerSuperUser = async (req, res) => {
   const { name, email, password, postcode, companyName } = req.body;
   const companyNameToUse = companyName || (req.body.company && req.body.company.name);
 
-  // Validate required fields
   if (!name || !email || !password || !companyNameToUse) {
     return res.status(400).json({ errors: 'Missing required fields' });
   }
 
-  // Validate email and name format
   if (!isValidEmail(email)) {
     return res.status(400).json({ errors: 'Invalid email format (e.g valid email: hello@testing.com' });
   }
@@ -68,11 +63,9 @@ exports.registerSuperUser = async (req, res) => {
   }
 };
 
-// Register Normal User
 exports.registerUser = async (req, res) => {
   const { name, email, password, postcode, organisationPassword } = req.body;
 
-  // Validate required fields
   if (!name || !email || !password || !postcode || !organisationPassword) {
     return res.status(400).json({ errors: 'Missing required fields' });
   }
