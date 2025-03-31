@@ -2,6 +2,15 @@
 
 This project is aimed to allow for organisations and IT employees who lack intensive resources and experience respetcively to be able to perform a Policy & Risk Assessment digitally. Whilst the main focus for this tool to be used by SMEs (small medium-sized enterprises) using cloud computing environments, it can be utilised across an organisation for different departments, sub teams and projects. Integrating AI into API requests will allow a user to go through all the steps of a risk assessment, and allow employees (users) and managers/IT department (superusers) to work together to build an automated policy.
 
+---
+
+### Pre-requisites:
+- Stable WiFi connection
+- Available `localhost:8000` port
+- Linux (recommended)
+
+---
+
 ### Frontend:
     - React + Vite
     - TypeScript

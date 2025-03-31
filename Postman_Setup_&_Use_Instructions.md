@@ -3,6 +3,13 @@
 
 ---
 
+### Pre-requisites:
+- Stable WiFi connection
+- Available `localhost:8000` port
+- Linux (recommended)
+
+---
+
 ## Download repo
 1. Clone or download the GitHub repository as per the instructions in the README.md.
 
